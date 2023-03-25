@@ -1,0 +1,18 @@
+#!/bin/sh
+
+container=$(buildah from --pull alpine:edge)
+
+trap 'buildah rm "$container"' EXIT INT TERM
+
+buildah run "$container" -- \
+  apk --no-cache add \
+    redshift
+
+buildah config \
+  --cmd '[]' \
+  --entrypoint '["redshift"]' \
+  "$container"
+
+if buildah run -t "$container" -- redshift -V; then
+  buildah commit "$container" redshift
+fi

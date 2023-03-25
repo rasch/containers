@@ -1,0 +1,10 @@
+#!/bin/sh
+# https://mednafen.github.io/documentation/#sound.device
+
+MEDNAFEN_CONFIG="${MEDNAFEN_CONFIG:-$HOME/.config/mednafen}"
+
+xpod -Bgx -- \
+  --volume "$MEDNAFEN_CONFIG":/root/.mednafen \
+  --device /dev/input/js0 \
+  --device /dev/input/event10 \
+  mednafen -sound 0 "$@"

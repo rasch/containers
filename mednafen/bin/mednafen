@@ -1,0 +1,11 @@
+#!/bin/sh
+# NOTE: Using ALSA because pulseaudio doesn't work with mednafen
+
+MEDNAFEN_CONFIG="${MEDNAFEN_CONFIG:-$HOME/.config/mednafen}"
+
+pasuspender -- \
+  xpod -aBgx -- \
+    --volume "$MEDNAFEN_CONFIG":/root/.mednafen \
+    --device /dev/input/js0 \
+    --device /dev/input/event10 \
+    mednafen -sound 1 "$@"
