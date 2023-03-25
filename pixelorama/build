@@ -1,0 +1,33 @@
+#!/bin/sh
+
+latest=https://api.github.com/repos/Orama-Interactive/Pixelorama/releases/latest
+regex='download_url.*Linux-64bit'
+
+container=$(buildah from --pull debian:stable-slim)
+
+trap 'buildah rm "$container"' EXIT INT TERM
+
+buildah run "$container" -- \
+  sh -c "apt update && \
+    apt install --no-install-recommends --yes \
+      ca-certificates \
+      libgl1-mesa-dri \
+      libgl1-mesa-glx \
+      libpulse0 \
+      libxcursor1 \
+      libxi6 \
+      libxinerama1 \
+      libxrandr2 \
+      wget && \
+    url=\$(wget -qO - $latest | grep $regex | cut -d \\\" -f 4); \
+    rm -rf /var/lib/apt/lists/*; \
+    wget -qO - \$url | tar -C /usr/local/bin --strip-components 1 -xzf -"
+
+buildah config \
+  --cmd '[]' \
+  --entrypoint '["Pixelorama.x86_64"]' \
+  "$container"
+
+if buildah run -t "$container" -- Pixelorama.x86_64 --version; then
+  buildah commit "$container" pixelorama
+fi
