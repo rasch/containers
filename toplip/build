@@ -1,0 +1,33 @@
+#!/bin/sh
+
+src=https://2ton.com.au/standalone_binaries/toplip
+path=/usr/bin/toplip
+chksum_url=https://2ton.com.au/Products
+
+container=$(buildah from --pull alpine:edge)
+
+trap 'buildah rm "$container"' EXIT INT TERM
+
+buildah run "$container" -- \
+  sh -c "wget -O $path $src && chmod +x $path"
+
+actualSum=$(
+  buildah run "$container" -- \
+    sh -c "sha256sum $path | cut -d ' ' -f 1"
+)
+
+expectedSum=$(
+  buildah run "$container" -- \
+    sh -c "wget -qO - $chksum_url | grep -A 2 $src | grep -oE '[0-9a-f]{64}'"
+)
+
+if test "$actualSum" != "$expectedSum"; then
+  printf 'ERROR: sha256 sums do NOT match!\n' >&2
+  exit 1
+fi
+
+buildah config \
+  --env PS1='\[\e[34m\]toplip>\[\e[0m\] ' \
+  "$container"
+
+buildah commit "$container" toplip
