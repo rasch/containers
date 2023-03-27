@@ -1,0 +1,50 @@
+*,
+body,
+div,
+input,
+p,
+pre,
+td,
+textarea,
+tr {
+  background-color: #282a36 !important;
+  color: #f8f8f2 !important;
+  font-family: sans-serif !important;
+}
+
+code,
+kbd,
+pre,
+samp,
+tt {
+  font-family: monospace !important;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  background-color: #282a36 !important;
+  color: #bd93f9 !important;
+}
+
+:link {
+  color: #8be9fd !important;
+}
+
+:focus,
+:hover {
+  color: #ff79c6 !important;
+}
+
+:visited {
+  color: #6272a4 !important;
+}
+
+img {
+  opacity: 0.5 !important;
+}
+
+img:hover {
+  opacity: 1 !important;
+}

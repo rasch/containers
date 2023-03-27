@@ -1,0 +1,5 @@
+#!/bin/sh
+
+xpod -dfx -- \
+  --volume "$HOME"/Downloads:/data \
+  dillo "$@"
