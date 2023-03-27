@@ -1,0 +1,22 @@
+#!/bin/sh
+
+container=$(buildah from --pull alpine:edge)
+
+trap 'buildah rm "$container"' EXIT INT TERM
+
+buildah run "$container" -- \
+  apk --no-cache add \
+    fontforge \
+    fontforge-gui
+
+buildah config \
+  --cmd '[]' \
+  --entrypoint '["fontforge"]' \
+  "$container"
+
+if ! buildah run -t "$container" -- fontforge -version; then
+  printf 'ERROR: fontforge not installed\n' >&2
+  exit 1
+fi
+
+buildah commit "$container" fontforge

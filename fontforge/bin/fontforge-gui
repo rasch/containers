@@ -1,0 +1,6 @@
+#!/bin/sh
+
+xpod -BdfX -- \
+  --name fontforge-gui \
+  --entrypoint fontforge-gui \
+  fontforge -nosplash "$@"
