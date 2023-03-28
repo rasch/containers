@@ -1,0 +1,3 @@
+#!/bin/sh
+
+xpod -Bdgpx -- stella -fullscreen 0 "$@"
