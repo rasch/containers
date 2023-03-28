@@ -1,0 +1,24 @@
+#!/bin/sh
+
+container=$(buildah from --pull alpine:edge)
+
+trap 'buildah rm "$container"' EXIT INT TERM
+
+buildah run "$container" -- \
+  apk add --no-cache \
+    mpd
+
+buildah config \
+  --cmd '[]' \
+  --entrypoint '["mpd"]' \
+  --port 6600 \
+  "$container"
+
+buildah copy "$container" config/mpd.conf /etc/mpd.conf
+
+if ! buildah run -t "$container" -- mpd --version; then
+  printf 'ERROR: mpd not installed\n' >&2
+  exit 1
+fi
+
+buildah commit "$container" mpd

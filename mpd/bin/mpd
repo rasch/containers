@@ -1,0 +1,13 @@
+#!/bin/sh
+
+FIFO=/tmp/mpd.fifo
+MUSIC_DIRECTORY="${MUSIC_DIRECTORY:-$HOME/Music}"
+
+test -p "$FIFO" || mkfifo "$FIFO"
+
+xpod -dlp -- \
+  --volume "$MUSIC_DIRECTORY":/data/music \
+  --volume "$HOME"/.config/mpd:/data/mpd \
+  --volume "$FIFO":"$FIFO" \
+  --publish 6600:6600 \
+  mpd --no-daemon "$@"

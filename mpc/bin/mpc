@@ -1,0 +1,3 @@
+#!/bin/sh
+
+xpod -i -- --env MPD_HOST mpc "$@"

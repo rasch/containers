@@ -1,0 +1,16 @@
+#!/bin/sh
+
+container=$(buildah from --pull alpine:edge)
+
+trap 'buildah rm "$container"' EXIT INT TERM
+
+buildah run "$container" -- \
+  apk add --no-cache \
+    mpc
+
+buildah config \
+  --cmd '[]' \
+  --entrypoint '["mpc"]' \
+  "$container"
+
+buildah commit "$container" mpc
