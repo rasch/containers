@@ -10,7 +10,7 @@ buildah run "$container" -- \
     dillo
 
 buildah config \
-  --cmd '' \
+  --cmd '[]' \
   --entrypoint '["dillo"]' \
   "$container"
 
