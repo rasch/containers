@@ -1,0 +1,26 @@
+#!/bin/sh
+# https://mupdf.com/docs/manual-mupdf-gl.html
+
+container=$(buildah from --pull alpine:edge)
+
+trap 'buildah rm "$container"' EXIT INT TERM
+
+buildah run "$container" -- \
+  apk add --no-cache \
+    mesa-demos \
+    mesa-dri-gallium \
+    mupdf \
+    mupdf-gl \
+    mupdf-tools
+
+buildah config \
+  --cmd '[]' \
+  --entrypoint '["mupdf-gl"]' \
+  "$container"
+
+if ! buildah run -t "$container" -- mutool -v; then
+  printf 'ERROR: mutool and/or mupdf-gl not installed\n' >&2
+  exit 1
+fi
+
+buildah commit "$container" mupdf-gl

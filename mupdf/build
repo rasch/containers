@@ -1,0 +1,23 @@
+#!/bin/sh
+
+container=$(buildah from --pull alpine:edge)
+
+trap 'buildah rm "$container"' EXIT INT TERM
+
+buildah run "$container" -- \
+  apk add --no-cache \
+    mupdf \
+    mupdf-tools \
+    mupdf-x11
+
+buildah config \
+  --cmd '[]' \
+  --entrypoint '["mupdf"]' \
+  "$container"
+
+if ! buildah run -t "$container" -- mutool -v; then
+  printf 'ERROR: mutool and/or mupdf not installed\n' >&2
+  exit 1
+fi
+
+buildah commit "$container" mupdf
