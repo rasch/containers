@@ -1,0 +1,25 @@
+#!/bin/sh
+
+container=$(buildah from --pull debian:stable-slim)
+
+# shellcheck disable=SC2016
+buildah run "$container" -- \
+  sh -c 'apt-get update && \
+    apt-get install --no-install-recommends --yes \
+    libgl1-mesa-dri \
+    libgl1-mesa-glx \
+    openscad && \
+  rm -rf /var/lib/apt/lists/* && \
+  mkdir -p "$HOME"/.local/share "$HOME"/.config'
+
+buildah config \
+  --cmd '[]' \
+  --entrypoint '["openscad"]' \
+  "$container"
+
+if ! buildah run -t "$container" -- openscad --version; then
+  printf 'ERROR: openscad not installed\n' >&2
+  exit 1
+fi
+
+buildah commit "$container" openscad
