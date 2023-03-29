@@ -1,0 +1,20 @@
+#!/bin/sh
+
+container=$(buildah from --pull debian:stable-slim)
+
+trap 'buildah rm "$container"' EXIT INT TERM
+
+buildah run "$container" -- \
+  sh -c 'apt update && \
+    apt install --no-install-recommends --yes \
+    libgl1-mesa-dri \
+    libgl1-mesa-glx \
+    openarena && \
+  rm -rf /var/lib/apt/lists/*'
+
+buildah config \
+  --cmd '[]' \
+  --entrypoint '["/usr/games/openarena"]' \
+  "$container"
+
+buildah commit "$container" openarena
