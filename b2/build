@@ -1,0 +1,23 @@
+#!/bin/sh
+
+container=$(buildah from --pull alpine:edge)
+
+trap 'buildah rm "$container"' EXIT INT TERM
+
+buildah run "$container" -- \
+  sh -c 'apk add --no-cache \
+    py3-pip \
+    python3 && \
+  pip install --upgrade b2'
+
+buildah config \
+  --cmd '[]' \
+  --entrypoint '["b2"]' \
+  "$container"
+
+if ! buildah run -t "$container" -- b2 version; then
+  printf 'ERROR: b2 not installed\n' >&2
+  exit 1
+fi
+
+buildah commit "$container" b2
