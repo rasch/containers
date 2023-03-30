@@ -1,0 +1,4 @@
+visualizer.spectrum.bar.width=1
+visualizer.spectrum.bar.spacing=1
+colors.override.terminal=false
+colors.scheme=default,rainbow

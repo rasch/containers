@@ -1,0 +1,59 @@
+#!/bin/sh
+
+src=https://github.com/dpayne/cli-visualizer.git
+build=$(buildah from --pull alpine:edge)
+
+trap 'buildah rm "$build"' EXIT INT TERM
+
+buildah run "$build" -- \
+  apk add --no-cache \
+    bash \
+    cmake \
+    g++ \
+    git \
+    fftw-dev \
+    make \
+    musl-dev \
+    ncurses-dev \
+    pulseaudio-dev
+
+buildah run "$build" -- \
+  git clone "$src"
+
+# no need for sudo in the container since... I am (G)root
+buildah run "$build" -- \
+  sed -i 's/sudo//' cli-visualizer/install.sh
+
+buildah run "$build" -- \
+  sh -c 'cd cli-visualizer && ./install.sh'
+
+mnt=$(buildah mount "$build")
+container=$(buildah from --pull alpine:edge)
+
+trap 'buildah rm "$container"' EXIT INT TERM
+
+buildah copy "$container" "$mnt"/usr/local/bin/vis /usr/local/bin/vis
+buildah copy "$container" "$mnt"/root/.config /root/.config
+buildah copy "$container" config /root/.config/vis
+
+buildah umount "$build"
+
+buildah run "$container" -- \
+  apk add --no-cache \
+    fftw-dev \
+    libstdc++ \
+    ncurses \
+    pulseaudio-dev
+
+buildah config \
+  --cmd '[]' \
+  --entrypoint '["vis"]' \
+  --env TERM=rxvt-256color \
+  "$container"
+
+if ! buildah run -t "$container" -- vis -h; then
+  printf 'ERROR: vis not installed\n' >&2
+  exit 1
+fi
+
+buildah commit "$container" cli-visualizer
