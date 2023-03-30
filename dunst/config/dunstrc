@@ -1,0 +1,44 @@
+# dunstrc
+# https://github.com/dunst-project/dunst/blob/master/docs/dunst.5.pod
+# https://developer.gnome.org/pango/stable/pango-Markup.html
+# https://wiki.archlinux.org/title/Dunst
+
+[global]
+enable_posix_regex = true
+width = (0, 512)
+origin = bottom-right
+offset = 18x18
+progress_bar_height = 6
+separator_height = 0
+padding = 18
+horizontal_padding = 24
+frame_width = 0
+idle_threshold = 120
+font = monospace 14
+format = "<small><i>%s</i></small>\n%b"
+show_age_threshold = -1
+
+background = "#21222c"
+foreground = "#f1fa8c"
+highlight = "#6272a4"
+frame_color = "#6272a4"
+max_icon_size = 128
+markup = full
+
+[urgency_low]
+timeout = 5s
+
+[urgency_normal]
+timeout = 10s
+
+[urgency_critical]
+foreground = "#ff5555"
+timeout = 0
+
+[volume]
+summary = "^[Vv]olume$"
+history_ignore = true
+
+[desktop]
+summary = "^[Dd]esktop$"
+history_ignore = true

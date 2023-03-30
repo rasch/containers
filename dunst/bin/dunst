@@ -1,0 +1,13 @@
+#!/bin/sh
+
+# Mounting MUSIC_DIRECTORY in the dunst container in order to give
+# access to the album covers for notifications. There is probably a
+# better way to get the cover from mpd/mpc instead (TODO).
+if test -n "$MUSIC_DIRECTORY"; then
+  mount_music_dir=true
+fi
+
+xpod -dfx -- \
+  --name dunst \
+  ${mount_music_dir:+--volume "$MUSIC_DIRECTORY":/data} \
+  dunst "$@"
