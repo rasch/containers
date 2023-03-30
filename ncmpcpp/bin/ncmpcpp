@@ -1,0 +1,17 @@
+#!/bin/sh
+
+MUSIC_DIRECTORY="${MUSIC_DIRECTORY:-$HOME/Music}"
+
+# create lyrics directory if it doesn't already exist
+mkdir -p "$MUSIC_DIRECTORY"/.lyrics
+
+if test -p /tmp/mpd.fifo; then
+  mpd_fifo=true
+fi
+
+xpod -l -- \
+  --env MPD_HOST \
+  --volume "$MUSIC_DIRECTORY":/root/music \
+  --volume "$MUSIC_DIRECTORY"/.lyrics:/root/.lyrics \
+  ${mpd_fifo:+--volume /tmp/mpd.fifo:/tmp/mpd.fifo} \
+  ncmpcpp "$@"

@@ -1,0 +1,23 @@
+#!/bin/sh
+
+container=$(buildah from --pull alpine:edge)
+
+trap 'buildah rm "$container"' EXIT INT TERM
+
+buildah run "$container" -- \
+  apk add --no-cache \
+    ncmpcpp
+
+buildah copy "$container" config /root/.config/ncmpcpp/
+
+buildah config \
+  --cmd '[]' \
+  --entrypoint '["ncmpcpp"]' \
+  "$container"
+
+if ! buildah run -t "$container" -- ncmpcpp --version; then
+  printf 'ERROR: ncmpcpp not installed\n' >&2
+  exit 1
+fi
+
+buildah commit "$container" ncmpcpp
