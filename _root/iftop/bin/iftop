@@ -1,0 +1,3 @@
+#!/bin/sh
+
+su -c "xpod -l -- --privileged --net host iftop $*"
