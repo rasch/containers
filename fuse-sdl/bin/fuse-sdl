@@ -1,0 +1,3 @@
+#!/bin/sh
+
+xpod -BgpX -- fuse-sdl --graphics-filter tv3x "$@"

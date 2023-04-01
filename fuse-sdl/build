@@ -1,0 +1,31 @@
+#!/bin/sh
+
+container=$(buildah from --pull debian:stable-slim)
+
+trap 'buildah rm "$container"' EXIT INT TERM
+
+# enable non-free packages (for spectrum-roms)
+buildah run "$container" -- \
+  sed -i 's/stable main/stable main non-free/' /etc/apt/sources.list
+
+buildah run "$container" -- \
+  sh -c 'apt update && \
+    apt install --no-install-recommends --yes \
+      libgl1-mesa-dri \
+      libgl1-mesa-glx \
+      fuse-emulator-utils \
+      fuse-emulator-sdl \
+      spectrum-roms && \
+    rm -rf /var/lib/apt/lists/*'
+
+buildah config \
+  --cmd '[]' \
+  --entrypoint '["fuse-sdl"]' \
+  "$container"
+
+if ! buildah run -t "$container" -- fuse-sdl --version; then
+  printf 'ERROR: fuse-sdl not installed\n' >&2
+  exit 1
+fi
+
+buildah commit "$container" fuse-sdl
