@@ -1,0 +1,21 @@
+#!/bin/sh
+
+container=$(buildah from --pull alpine:edge)
+
+trap 'buildah rm "$container"' EXIT INT TERM
+
+buildah run "$container" \
+  apk add --no-cache \
+    graphicsmagick
+
+buildah config \
+  --cmd '[]' \
+  --entrypoint '["gm"]' \
+  "$container"
+
+if ! buildah run -t "$container" -- gm version; then
+  printf 'ERROR: graphicsmagick not installed\n' >&2
+  exit 1
+fi
+
+buildah commit "$container" graphicsmagick
