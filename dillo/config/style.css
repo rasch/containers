@@ -28,16 +28,16 @@ h4 {
   color: #bd93f9 !important;
 }
 
-:link {
+a:link {
   color: #8be9fd !important;
 }
 
-:focus,
-:hover {
+a:focus,
+a:hover {
   color: #ff79c6 !important;
 }
 
-:visited {
+a:visited {
   color: #6272a4 !important;
 }
 
