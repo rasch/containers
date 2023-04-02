@@ -1,0 +1,33 @@
+#!/bin/sh
+
+container=$(buildah from --pull alpine:edge)
+
+trap 'buildah rm "$container"' EXIT INT TERM
+
+version=$(buildah run "$container" -- \
+  sh -c 'wget -qO - https://api.github.com/repos/jgm/pandoc/releases/latest | \
+    sed -n '\''s/.*"tag_name":\s"\(.*\)",/\1/p'\'
+  )
+
+url=https://github.com/jgm/pandoc/releases/download
+
+buildah run "$container" -- \
+  sh -c "wget -qO - $url/$version/pandoc-$version-linux-amd64.tar.gz | \
+    tar xvzf - --strip-components 1 -C /usr/local/"
+
+buildah run "$container" -- \
+  apk add --no-cache \
+    rsvg-convert \
+    tectonic
+
+buildah config \
+  --cmd '[]' \
+  --entrypoint '["pandoc"]' \
+  "$container"
+
+if ! buildah run -t "$container" -- pandoc --version; then
+  printf 'ERROR: pandoc not installed\n' >&2
+  exit 1
+fi
+
+buildah commit "$container" pandoc
