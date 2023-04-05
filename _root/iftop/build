@@ -4,7 +4,7 @@ container=$(buildah from --pull alpine:edge)
 
 trap 'buildah rm "$container"' EXIT INT TERM
 
-buildah run "$container" \
+buildah run "$container" -- \
   apk add --no-cache \
     iftop
 
