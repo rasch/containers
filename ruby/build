@@ -1,0 +1,20 @@
+#!/bin/sh
+
+container=$(buildah from --pull alpine:edge)
+
+trap 'buildah rm "$container"' EXIT INT TERM
+
+buildah run "$container" -- \
+  apk add --no-cache \
+    ruby \
+    ruby-rdoc
+
+buildah run "$container" -- \
+  gem install lolcat
+
+buildah config \
+  --cmd '[]' \
+  --entrypoint '["ruby"]' \
+  "$container"
+
+buildah commit "$container" ruby
