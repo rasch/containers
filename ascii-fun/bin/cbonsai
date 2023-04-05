@@ -1,0 +1,3 @@
+#!/bin/sh
+
+xpod -- --entrypoint cbonsai ascii-fun "$@"

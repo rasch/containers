@@ -1,0 +1,3 @@
+#!/bin/sh
+
+xpod -- --entrypoint pipes ascii-fun "$@"

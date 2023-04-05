@@ -1,0 +1,27 @@
+#!/bin/sh
+
+container=$(buildah from --pull alpine:edge)
+
+trap 'buildah rm "$container"' EXIT INT TERM
+
+buildah run "$container" -- \
+  apk add --no-cache \
+    asciiquarium \
+    bash \
+    cbonsai \
+    cmatrix \
+    fortune \
+    ncurses \
+    sl
+
+buildah run "$container" -- \
+  sh -c 'wget -qO /usr/local/bin/pipes \
+    https://github.com/pipeseroni/pipes.sh/raw/master/pipes.sh && \
+    chmod +x /usr/local/bin/pipes'
+
+buildah config \
+  --cmd '[]' \
+  --entrypoint '["fortune"]' \
+  "$container"
+
+buildah commit "$container" ascii-fun
