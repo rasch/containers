@@ -1,0 +1,42 @@
+#!/bin/sh
+
+kbfs=/root/.config/keybase/kbfs
+running=$(podman inspect --format "{{.State.Running}}" keybase-daemon 2>/dev/null)
+
+if ! test "$running" = true; then
+  printf 'Starting keybase-daemon container...\n'
+
+  # Create the keybase configuration directories if they don't exist.
+  # `.cache/keybase`: cache data
+  # `.local/share/keybase`: login data
+  # `.config/keybase`: configuration and device keys are here
+  mkdir -p \
+    "$HOME"/.cache/keybase \
+    "$HOME"/.config/keybase \
+    "$HOME"/.local/share/keybase
+
+  # Start keybase services in `keybase-daemon` container.
+  xpod -d -- \
+    --name keybase-daemon \
+    --volume "$HOME"/.cache/keybase:/root/.cache/keybase:U \
+    --volume "$HOME"/.config/keybase:/root/.config/keybase:U \
+    --volume "$HOME"/.local/share/keybase:/root/.local/share/keybase:U \
+    --volume "$(pwd)":"$kbfs" \
+    --workdir "$kbfs" \
+    keybase
+fi
+
+# Overload `keybase` command to handle `git` operations that require `keybase`
+# and `git-remote-keybase` to function (clone, fetch, pull, push).
+case "$1" in
+  clone) cmd=git ;;
+  fetch|pull|push) cmd=git; workdir="$kbfs/$(basename "$(pwd)")" ;;
+esac
+
+# Run interactive `keybase` [sub]command.
+podman exec \
+  ${workdir:+--workdir "$workdir"} \
+  --interactive \
+  --tty \
+  keybase-daemon \
+  "${cmd:-keybase}" "$@"
