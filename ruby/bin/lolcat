@@ -3,6 +3,6 @@
 # FIXME: this allows input to pass through lolcat but the colors/ansi are lost
 if ! tty >/dev/null 2>&1; then
   opts="i"
-fi 
+fi
 
 xpod -B"$opts" -- --entrypoint lolcat ruby "$@"
