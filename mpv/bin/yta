@@ -1,0 +1,3 @@
+#!/bin/sh
+
+xpod -p -- --name yta mpv --ytdl-format=bestaudio ytdl://ytsearch:"$*"

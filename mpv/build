@@ -1,0 +1,22 @@
+#!/bin/sh
+
+container=$(buildah from --pull alpine:edge)
+
+trap 'buildah rm "$container"' EXIT INT TERM
+
+buildah run "$container" -- \
+  apk add --no-cache \
+    ffmpeg \
+    jq \
+    mesa-demos \
+    mesa-dri-gallium \
+    mpv \
+    socat \
+    yt-dlp
+
+buildah config \
+  --cmd '[]' \
+  --entrypoint '["mpv"]' \
+ "$container"
+
+buildah commit "$container" mpv

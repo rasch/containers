@@ -1,0 +1,4 @@
+#!/bin/sh
+
+xpod -p -- --name rainymood \
+  mpv "https://rainymood.com/audio1112/$(shuf -i 0-8 -n 1).ogg"

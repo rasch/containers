@@ -1,0 +1,14 @@
+#!/bin/sh
+
+entrypoint='["yt-dlp"]'
+
+if test "$1" = 'cookies-from-firefox' -a -d "$HOME"/.config/mozilla; then
+  entrypoint='["yt-dlp", "--cookies-from-browser", "firefox"]'
+  mozilla=true
+  shift
+fi
+
+xpod -B -- \
+  ${mozilla:+--volume "$HOME"/.config/mozilla:/root/.mozilla} \
+  --entrypoint "$entrypoint" \
+  mpv "$@"

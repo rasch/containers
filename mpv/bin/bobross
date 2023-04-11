@@ -1,0 +1,3 @@
+#!/bin/sh
+
+xpod -dfgpx -- --name bobross mpv https://twitch.tv/bobross

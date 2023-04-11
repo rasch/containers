@@ -1,0 +1,12 @@
+#!/bin/sh
+
+font=monospace
+
+xpod -Bdfgpx -- mpv \
+  --force-window \
+  --osd-duration=4000 \
+  --osd-font="$font" \
+  --osd-font-size=28 \
+  --script-opts=console-font="$font",console-font_size=28,stats-font="$font" \
+  --script-opts-append=ytdl_hook-ytdl_path=yt-dlp \
+  "$@"
