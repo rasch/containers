@@ -1,0 +1,5 @@
+#!/bin/sh
+
+xpod -B -- \
+  --device /dev/kvm \
+  qemu-img "$@"

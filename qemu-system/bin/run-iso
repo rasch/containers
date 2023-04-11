@@ -1,0 +1,16 @@
+#!/bin/sh
+
+qemu-system-x86_64 \
+  -enable-kvm \
+  -cpu host \
+  -smp cpus=2 \
+  -m 4G \
+  -boot order=d \
+  ${1:+-cdrom "$1"} \
+  ${2:+-drive file="$2",if=virtio,cache=none} \
+  -nic user,model=virtio \
+  -audiodev pa,id=snd0,server=/tmp/pulseaudio.socket \
+  -device ich9-intel-hda \
+  -device hda-output,audiodev=snd0 \
+  -device VGA,vgamem_mb=64,edid=on,xres=1920,yres=1080 \
+  -usb -device usb-tablet

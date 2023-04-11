@@ -1,0 +1,16 @@
+#!/bin/sh
+
+container=$(buildah from --pull alpine:edge)
+
+trap 'buildah rm "$container"' EXIT INT TERM
+
+buildah run "$container" -- \
+  apk add --no-cache \
+    qemu-img
+
+buildah config \
+  --cmd '[]' \
+  --entrypoint '["qemu-img"]' \
+  "$container"
+
+buildah commit "$container" qemu-img

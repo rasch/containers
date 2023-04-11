@@ -1,0 +1,5 @@
+#!/bin/sh
+
+xpod -BfglpX -- \
+  --device=/dev/kvm \
+  qemu-system "$@"

@@ -1,0 +1,20 @@
+#!/bin/sh
+
+container=$(buildah from --pull alpine:edge)
+
+trap 'buildah rm "$container"' EXIT INT TERM
+
+buildah run "$container" -- \
+  apk add --no-cache \
+    mesa-demos \
+    mesa-dri-gallium \
+    qemu-audio-pa \
+    qemu-system-x86_64 \
+    qemu-ui-gtk
+
+buildah config \
+  --cmd '[]' \
+  --entrypoint '["qemu-system-x86_64"]' \
+  "$container"
+
+buildah commit "$container" qemu-system
