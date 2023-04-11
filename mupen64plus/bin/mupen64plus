@@ -1,0 +1,24 @@
+#!/bin/sh
+
+config="$HOME"/.config/mupen64plus
+
+for i in config screenshot save; do
+  mkdir -p "$config/$i"
+done
+
+controller=true
+
+if test "$1" = keyboard; then
+  unset controller
+  shift
+fi
+
+xpod -Bgpx -- --name mupen64plus \
+  --volume "$config"/config:/root/.config/mupen64plus \
+  --volume "$config"/screenshot:/root/.local/share/mupen64plus/screenshot \
+  --volume "$config"/save:/root/.local/share/mupen64plus/save \
+  ${controller:+--device /dev/input/js0} \
+  ${controller:+--device /dev/input/event10} \
+  mupen64plus "$@"
+  # --fullscreen --gfx mupen64plus-video-glide64mk2
+  # --fullscreen --gfx mupen64plus-video-rice
