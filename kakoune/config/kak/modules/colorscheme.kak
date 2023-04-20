@@ -1,0 +1,1 @@
+#plugin dracula/kakoune
