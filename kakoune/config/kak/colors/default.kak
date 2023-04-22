@@ -24,12 +24,12 @@ set-face global list default
 
 # builtin faces
 set-face global Default default,default
-set-face global PrimarySelection bright-magenta+rfg
-set-face global SecondarySelection bright-blue+rfg
-set-face global PrimaryCursor magenta+rfg
-set-face global SecondaryCursor blue+rfg
-set-face global PrimaryCursorEol +rfg
-set-face global SecondaryCursorEol +rfg
+set-face global PrimarySelection bright-magenta+rF
+set-face global SecondarySelection bright-blue+rF
+set-face global PrimaryCursor magenta+rF
+set-face global SecondaryCursor blue+rF
+set-face global PrimaryCursorEol +rF
+set-face global SecondaryCursorEol +rF
 set-face global MenuForeground bright-black,yellow+rb
 set-face global MenuBackground default,black
 set-face global MenuInfo comment
