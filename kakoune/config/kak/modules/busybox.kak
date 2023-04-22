@@ -64,6 +64,7 @@ define-command -params 1 -docstring %{
 
 complete-command -menu find shell-script-candidates %{
   find . -type f -ipath '*'"$1"'*' ! -path '*/.git/*'
+  # rg --files --glob "$1" --hidden --iglob '!.git'
 }
 
 # ----------------------------------------
