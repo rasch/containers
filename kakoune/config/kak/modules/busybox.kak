@@ -271,10 +271,11 @@ define-command -params ..1 -docstring %{
 # fold
 # ----------------------------------------
 
-define-command -params ..1 -docstring %{
+define-command -docstring %{
   fold [width]: wrap selection
 } fold %{ execute-keys -draft %sh{
-  printf '<a-j>|fold -sw %d<ret>' "${1:-$kak_opt_autowrap_column}"
+  width=$(expr $kak_count '|' $kak_opt_autowrap_column)
+  printf '<a-j>|fold -sw %d<ret>' "$width"
 } }
 
 # ----------------------------------------
