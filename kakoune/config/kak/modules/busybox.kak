@@ -13,10 +13,10 @@ define-command -docstring %{
 # chmod
 # ----------------------------------------
 
-define-command -params ..1 -docstring %{
-  chmod [mode]: change the mode flags of buffile (default: 644)
+define-command -docstring %{
+  chmod: change the mode flags of buffile to count (default: 644)
 } chmod %{ echo -markup %sh{
-  if ! chmod "${1:-644}" "$kak_buffile"; then
+  if ! chmod $(expr $kak_count '|' 644) "$kak_buffile"; then
     printf '{Error} Error [chmod]: see *debug* buffer for details '
   fi
 } }
