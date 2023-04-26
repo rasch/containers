@@ -1,8 +1,9 @@
 #!/bin/sh
 
-# FIXME: this allows input to pass through lolcat but the colors/ansi are lost
 if ! tty >/dev/null 2>&1; then
-  opts="i"
+  # Using the `-i` flag allows input to pass through `lolcat` but the colors/ansi
+  # are lost unless the `lolcat --force` option is used.
+  xpod -i -- --entrypoint '["lolcat", "--truecolor", "--force"]' ruby "$@"
+else
+  xpod -B -- --entrypoint '["lolcat", "--truecolor"]' ruby "$@"
 fi
-
-xpod -B"$opts" -- --entrypoint lolcat ruby "$@"
