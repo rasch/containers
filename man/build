@@ -1,0 +1,69 @@
+#!/bin/sh
+
+container=$(buildah from --pull alpine:edge)
+
+trap 'buildah rm "$container"' EXIT INT TERM
+
+buildah run "$container" -- \
+  apk add --no-cache \
+    aspell-doc \
+    bash-doc \
+    bmon-doc \
+    cbonsai-doc \
+    cmatrix-doc \
+    ctags-doc \
+    curl-doc \
+    dillo-doc \
+    dropbear-doc \
+    dunst-doc \
+    exa-doc \
+    ffmpeg-doc \
+    file-doc \
+    fontforge-doc \
+    fortune-doc \
+    gimp-doc \
+    git-doc \
+    gnupg-doc \
+    graphicsmagick-doc \
+    htop-doc \
+    iftop-doc \
+    imagemagick-doc \
+    inkscape-doc \
+    isync-doc \
+    jq-doc \
+    less \
+    man-pages \
+    man-pages-posix \
+    mandoc \
+    mandoc-apropos \
+    mandoc-doc \
+    mpc-doc \
+    mpd-doc \
+    mpv-doc \
+    mupdf-doc \
+    ncmpcpp-doc \
+    ncurses-doc \
+    nodejs-current-doc \
+    notmuch-doc \
+    qemu-doc \
+    redshift-doc \
+    ripgrep-doc \
+    rsvg-convert-doc \
+    rsync-doc \
+    ruby-doc \
+    shellcheck-doc \
+    sl-doc \
+    socat-doc \
+    stellarium-doc \
+    tmux-doc \
+    w3m-doc \
+    xsel-doc \
+    yt-dlp-doc
+
+buildah config \
+  --cmd '[]' \
+  --entrypoint '["man"]' \
+  --env MANPAGER='less -R --use-color -Dd+b -Dug -DSky -DEwr -DPg' \
+  "$container"
+
+buildah commit "$container" man

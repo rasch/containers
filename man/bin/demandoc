@@ -1,0 +1,7 @@
+#!/bin/sh
+
+if ! tty >/dev/null 2>&1; then
+  xpod -i -- --entrypoint '["demandoc"]' man "$@"
+else
+  xpod -B -- --entrypoint '["demandoc"]' man "$@"
+fi
