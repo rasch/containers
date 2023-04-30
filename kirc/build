@@ -1,0 +1,27 @@
+#!/bin/sh
+
+build=$(buildah from localhost/build)
+container=$(buildah from --pull alpine:edge)
+
+trap 'buildah rm "$build" "$container"' EXIT INT TERM
+
+buildah run "$build" -- sh -l <<EOF
+  git clone https://github.com/mcpcpc/kirc
+  cd kirc
+  make
+  make install
+EOF
+
+buildah copy --from "$build" "$container" /usr/local/bin /usr/local/bin
+
+buildah config \
+  --cmd '[]' \
+  --entrypoint '["kirc"]' \
+  "$container"
+
+if ! buildah run -t "$container" -- kirc -v; then
+  printf 'ERROR: kirc not installed\n' >&2
+  exit 1
+fi
+
+buildah commit "$container" kirc
