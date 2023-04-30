@@ -1,0 +1,37 @@
+#!/bin/sh
+
+container=$(buildah from --pull debian:stable-slim)
+
+trap 'buildah rm "$container"' EXIT INT TERM
+
+buildah run "$container" -- sh -l <<'EOF'
+  apt update
+
+  apt install --no-install-recommends --yes \
+    ca-certificates \
+    curl \
+    libgbm1 \
+    libpulse0
+EOF
+
+version=$(buildah run "$container" -- \
+  sh -c 'curl -sL https://api.github.com/repos/minbrowser/min/releases/latest | \
+    sed -n '\''s/.*"tag_name":\s"\(.*\)",/\1/p'\'
+  )
+
+buildah run "$container" -- sh -l <<EOF
+  curl -sLO \
+    "https://github.com/minbrowser/min/releases/download/${version}/min-${version#?}-amd64.deb"
+
+  apt install --yes --fix-broken "./min-${version#?}-amd64.deb"
+  rm -rf "min-${version#?}-amd64.deb" /var/lib/apt/lists/*
+  useradd -ms /bin/bash minuser
+EOF
+
+buildah config \
+  --cmd '[]' \
+  --entrypoint '["min"]' \
+  --user minuser \
+  "$container"
+
+buildah commit "$container" min
