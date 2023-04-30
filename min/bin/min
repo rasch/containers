@@ -7,7 +7,7 @@
 # on a host with the root account locked. The `xpod` script also drops all
 # capabilities and sets strict security-opt.
 
-xpod -fglpX -- \
+xpod -dfglpX -- \
   --env GTK_THEME=Adwaita:dark \
   --user 0 \
   --volume "$HOME"/Downloads:/root/Downloads \
