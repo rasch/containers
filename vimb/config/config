@@ -1,0 +1,36 @@
+set home-page=about:blank
+set download-path=/data
+set editor-command=st -e vi '%s'
+
+set hint-keys-same-length=true
+set hint-keys=hjklasdfgyuiopqwertnmzxcvb
+
+set incsearch=true
+
+set spell-checking=true
+set spell-checking-languages=en
+
+set webgl=true
+set accelerated-2d-canvas=true
+
+set dark-mode=true
+set smooth-scrolling=true
+
+set default-font=sans-serif
+set monospace-font=monospace
+set sans-serif-font=sans-serif
+set serif-font=serif
+
+set completion-css=color:#f8f8f2;background-color:#21222c;font:12pt monospace;
+set completion-hover-css=color:#f8f8f2;background-color:#44475a;font:12pt monospace;
+set completion-selected-css=color:#8be9fd;background-color:#21222c;font:12pt monospace;
+set input-css=color:#f8f8f2;background-color:#282a36;font:12pt monospace;
+set input-error-css=color:#ff5555;background-color:#282a36;font:12pt monospace;
+set status-css=color:#6272a4;background-color:#282a36;font:12pt monospace;
+set status-ssl-css=color:#50fa7b;background-color:#282a36;font:12pt monospace;
+set status-ssl-invalid-css=color:#ff5555;background-color:#282a36;font:12pt monospace;
+
+nnoremap gd :set dark-mode!<CR>
+nnoremap gp :set private-browsing!<CR>
+nnoremap gr :eval! simplyread();<CR>
+nnoremap gs :set stylesheet!<CR>

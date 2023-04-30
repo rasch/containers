@@ -1,0 +1,58 @@
+#!/bin/sh
+
+container=$(buildah from --pull alpine:edge)
+build=$(buildah from localhost/build)
+
+trap 'buildah rm "$build" "$container"' EXIT INT TERM
+
+buildah run "$container" -- \
+  apk add --no-cache \
+    gst-plugins-bad \
+    gst-plugins-base \
+    gst-plugins-good \
+    gstreamer \
+    mesa-demos \
+    mesa-dri-gallium \
+    sxmo-st \
+    vimb
+
+buildah config \
+  --cmd '[]' \
+  --entrypoint '["vimb"]' \
+  "$container"
+
+buildah copy "$container" config /root/.config/vimb
+
+# build/setup adblock
+
+buildah run "$build" -- \
+  apk add --no-cache \
+    glib-dev \
+    gtk+3.0-dev \
+    webkit2gtk-4.1-dev
+
+buildah run "$build" -- \
+  git clone https://github.com/jun7/wyebadblock.git
+
+buildah run "$build" -- \
+  sh -c 'WEBKITVER=4.1 make -C wyebadblock'
+
+buildah copy --from "$build" "$container" /wyebadblock/wyebab /usr/bin/
+
+buildah run "$container" -- \
+  mkdir -p /root/.config/wyebadblock
+
+buildah run "$container" -- \
+  wget -qO /root/.config/wyebadblock/easylist.txt \
+    https://easylist.to/easylist/easylist.txt
+
+# setup SimplyRead
+
+simplyread=https://njw.name/simplyread/simplyread-0.8.tar.bz2
+
+buildah run "$container" -- \
+  sh -c "wget -qO - $simplyread | \
+    tar -xOjf - simplyread-0.8/simplyread.js > \
+    /root/.config/vimb/scripts.js"
+
+buildah commit "$container" vimb

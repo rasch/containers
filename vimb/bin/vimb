@@ -1,0 +1,5 @@
+#!/bin/sh
+
+xpod -dfglpx -- \
+  --volume "$HOME"/Downloads:/data \
+  vimb "$@"
