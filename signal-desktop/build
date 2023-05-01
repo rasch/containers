@@ -1,0 +1,43 @@
+#!/bin/sh
+
+container=$(buildah from --pull debian:stable-slim)
+keyring=signal-desktop-keyring.gpg
+
+trap 'buildah rm "$container"' EXIT INT TERM
+
+buildah run "$container" -- \
+  sh -c 'apt update && apt install --yes gnupg2 wget'
+
+buildah run "$container" -- \
+  sh -c "wget -O- https://updates.signal.org/desktop/apt/keys.asc | \
+    gpg --dearmor | \
+    tee /usr/share/keyrings/$keyring > /dev/null"
+
+buildah run "$container" -- \
+  sh -c "printf 'deb [arch=amd64 signed-by=/usr/share/keyrings/%s] %s xenial main\n' \
+    $keyring https://updates.signal.org/desktop/apt | \
+    tee /etc/apt/sources.list.d/signal-xenial.list"
+
+buildah run "$container" -- \
+  sh -c 'apt update && \
+    apt install --no-install-recommends --yes \
+      libgbm1 \
+      libgl1-mesa-dri \
+      libgl1-mesa-glx \
+      libgtk-3-0 \
+      signal-desktop && \
+    rm -rf /var/lib/apt/lists/*'
+
+buildah run "$container" -- \
+  sh -c 'apt purge --yes gnupg2 wget && apt autoremove --yes'
+
+buildah run "$container" -- \
+  useradd -ms /bin/bash signaluser
+
+buildah config \
+  --cmd '[]' \
+  --entrypoint '["signal-desktop"]' \
+  --user signaluser \
+  "$container"
+
+buildah commit "$container" signal-desktop
