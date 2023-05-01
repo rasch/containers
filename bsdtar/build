@@ -1,0 +1,18 @@
+#!/bin/sh
+
+container=$(buildah from --pull alpine:edge)
+
+trap 'buildah rm "$container"' EXIT INT TERM
+
+buildah run "$container" -- \
+  apk add --no-cache \
+    libarchive-tools
+
+buildah copy "$container" config/extract /usr/local/bin/extract
+
+buildah config \
+  --cmd '[]' \
+  --entrypoint '["bsdtar"]' \
+  "$container"
+
+buildah commit "$container" bsdtar
