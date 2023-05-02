@@ -1,9 +1,9 @@
 #!/bin/sh
 
-src=https://github.com/dpayne/cli-visualizer.git
+container=$(buildah from --pull alpine:edge)
 build=$(buildah from --pull alpine:edge)
 
-trap 'buildah rm "$build"' EXIT INT TERM
+trap 'buildah rm "$build" "$container"' EXIT INT TERM
 
 buildah run "$build" -- \
   apk add --no-cache \
@@ -18,7 +18,7 @@ buildah run "$build" -- \
     pulseaudio-dev
 
 buildah run "$build" -- \
-  git clone "$src"
+  git clone https://github.com/dpayne/cli-visualizer.git
 
 # no need for sudo in the container since... I am (G)root
 buildah run "$build" -- \
@@ -27,16 +27,9 @@ buildah run "$build" -- \
 buildah run "$build" -- \
   sh -c 'cd cli-visualizer && ./install.sh'
 
-mnt=$(buildah mount "$build")
-container=$(buildah from --pull alpine:edge)
-
-trap 'buildah rm "$container"' EXIT INT TERM
-
-buildah copy "$container" "$mnt"/usr/local/bin/vis /usr/local/bin/vis
-buildah copy "$container" "$mnt"/root/.config /root/.config
+buildah copy --from "$build" "$container" /usr/local/bin/vis /usr/local/bin/vis
+buildah copy --from "$build" "$container" /root/.config /root/.config
 buildah copy "$container" config /root/.config/vis
-
-buildah umount "$build"
 
 buildah run "$container" -- \
   apk add --no-cache \

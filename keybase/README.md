@@ -16,7 +16,7 @@ working directory is mounted in the container as the `kbfs` directory.
 ## Build and Install
 
 ```sh
-buildah unshare ./build
+sh build
 cp -i ./bin/keybase ~/.local/bin/
 ```
 

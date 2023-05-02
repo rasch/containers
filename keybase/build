@@ -3,14 +3,12 @@
 build=$(buildah from --pull keybaseio/client)
 container=$(buildah from --pull debian:stable-slim)
 
-mnt=$(buildah mount "$build")
-
-trap 'buildah umount "$build" && buildah rm "$build" "$container"' EXIT INT TERM
+trap 'buildah rm "$build" "$container"' EXIT INT TERM
 
 # copy keybase binaries into the container
 for binary in keybase kbfsfuse git-remote-keybase; do
-  buildah copy "$container" "$mnt/usr/bin/$binary" "/usr/bin/$binary"
-  buildah copy "$container" "$mnt/usr/bin/$binary.sig" "/usr/bin/$binary.sig"
+  buildah copy --from "$build" "$container" /usr/bin/"$binary" /usr/bin/"$binary"
+  buildah copy --from "$build" "$container" /usr/bin/"$binary".sig /usr/bin/"$binary".sig
 done
 
 # configure the container entrypoint

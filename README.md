@@ -5,8 +5,8 @@ a collection of POSIX shell scripts to build and run OCI images
 ## building the images
 
 ```sh
-cd <application>
-buildah unshare ./build
+cd [APPLICATION]
+sh build
 ```
 
 There are a few dependencies for building the images. The scripts are
@@ -56,7 +56,7 @@ Read a PDF file with `mupdf`...
 
 ```sh
 cd mupdf
-buildah unshare ./build
+sh build
 cd <path/to/pdf>
 xpod -Bdx -- mupdf <my_document.pdf>
 ```
@@ -65,7 +65,7 @@ xpod -Bdx -- mupdf <my_document.pdf>
 
 ```sh
 cd mupdf
-buildah unshare ./build
+sh build
 cp bin/mupdf ~/.local/bin/
 cd <path/to/pdf>
 mupdf <my_document.pdf>
