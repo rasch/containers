@@ -1,0 +1,45 @@
+#!/bin/sh
+
+container=$(buildah from --pull debian:stable-slim)
+
+trap 'buildah rm "$container"' EXIT INT TERM
+
+buildah run "$container" -- \
+  sh -c 'apt update && \
+    apt install --no-install-recommends --yes \
+      ca-certificates \
+      curl \
+      libgl1-mesa-dri \
+      libgl1-mesa-glx'
+
+buildah run "$container" -- \
+  curl -Lo /tmp/tsc.deb \
+    'https://ftp.secretchronicles.org/releases/TSC-2.1.0-bullseye-amd64.deb'
+
+if ! buildah run "$container" -- sh -c "sha256sum -c <<'EOF'
+30701ef6fb4fcf9afe36286ff00734af9ae474483db302de201f2c04ca07981a  /tmp/tsc.deb
+EOF"; then
+  printf 'ERROR: tsc sha256sum does not match\n' >&2
+  exit 1
+fi
+
+buildah run "$container" -- \
+  sh -c 'apt install --no-install-recommends --yes /tmp/tsc.deb && \
+    rm -fr /tmp/tsc.deb'
+
+buildah run "$container" -- \
+  sh -c 'apt purge --yes ca-certificates curl && \
+    apt autoremove --yes && \
+    rm -fr /var/lib/apt/lists/*'
+
+buildah config \
+  --cmd '[]' \
+  --entrypoint '["tsc"]' \
+  "$container"
+
+if ! buildah run -t "$container" -- tsc --version; then
+  printf 'ERROR: tsc not installed\n' >&2
+  exit 1
+fi
+
+buildah commit "$container" tsc
