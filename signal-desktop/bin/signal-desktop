@@ -1,6 +1,6 @@
 #!/bin/sh
 
-xpod -dfglx -- \
+xpod -dfglX -- \
   --cap-add SYS_CHROOT \
   --env GTK_THEME=Adwaita:dark \
   --volume "$HOME"/.config/signal:/home/signaluser:U \
