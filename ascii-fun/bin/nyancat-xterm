@@ -1,0 +1,7 @@
+#!/bin/sh
+
+xpod -- \
+  --entrypoint nyancat \
+  --env COLORTERM \
+  --env TERM=xterm \
+  ascii-fun "$@"

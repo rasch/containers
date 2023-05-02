@@ -12,6 +12,7 @@ buildah run "$container" -- \
     cmatrix \
     fortune \
     ncurses \
+    nyancat \
     sl
 
 buildah run "$container" -- \
