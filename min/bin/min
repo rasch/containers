@@ -1,7 +1,7 @@
 #!/bin/sh
 
-# NOTE: audio is not working in chrome based browsers unless the `--no-sandbox` 
-# option is enabled. Use the `brave-no-sandbox` script if audio is needed (at 
+# NOTE: audio is not working in chrome based browsers unless the `--no-sandbox`
+# option is enabled. Use the `brave-no-sandbox` script if audio is needed (at
 # the loss of a bit of stability/security?).
 
 xpod -dfglX -- \
