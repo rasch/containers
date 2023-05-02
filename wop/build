@@ -1,0 +1,47 @@
+#!/bin/sh
+
+container=$(buildah from --pull debian:stable-slim)
+
+trap 'buildah rm "$container"' EXIT INT TERM
+
+buildah run "$container" -- \
+  sh -c 'apt update && \
+    apt install --no-install-recommends --yes \
+      ca-certificates \
+      curl \
+      libgl1-mesa-dri \
+      libgl1-mesa-glx \
+      libopenal-dev \
+      libsdl2-dev \
+      unzip && \
+    rm -rf /var/lib/apt/lists/*'
+
+# NOTE: if curl doesn't download wop, then download it manually into the same
+# directory as this build script. https://worldofpadman.net/en/download/
+if test -f wop-1.6.2-full-unified.zip; then
+  buildah copy "$container" wop-1.6.2-full-unified.zip /tmp/wop.zip
+else
+  buildah run "$container" -- \
+    curl -Lo /tmp/wop.zip \
+      'https://www.moddb.com/downloads/mirror/224119/124/7a5c6a6f276dce6a349edcb372c00343'
+fi
+
+if ! buildah run "$container" -- sh -c "sha1sum -c <<'EOF'
+c80bba2cb58a85953c42b9cffc1a9c324005bf1d  /tmp/wop.zip
+EOF"; then
+  printf 'ERROR: worldofpadman sha1sum does not match\n' >&2
+  exit 1
+fi
+
+buildah run "$container" -- \
+  sh -c 'unzip /tmp/wop.zip -d /usr/games && rm -fr /tmp/wop.zip'
+
+buildah run "$container" -- \
+  sh -c 'apt purge --yes ca-certificates curl unzip && apt autoremove --yes'
+
+buildah config \
+  --cmd '[]' \
+  --entrypoint '["/usr/games/worldofpadman-1-6-2/wop-linux.x86_64"]' \
+  "$container"
+
+buildah commit "$container" wop
