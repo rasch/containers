@@ -1,0 +1,8 @@
+#!/bin/sh
+
+exec 2>/dev/null
+
+filename=$(basename -- "$4")
+filesize=$(du -Hh -- "$4" | cut -f 1)
+
+printf "\xef\x84\x95 %s [%s]" "$filename" "$filesize"

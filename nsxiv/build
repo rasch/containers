@@ -1,0 +1,46 @@
+#!/bin/sh
+
+container=$(buildah from --pull alpine:edge)
+build=$(buildah from localhost/build)
+
+trap 'buildah rm "$build" "$container"' EXIT INT TERM
+
+buildah run "$build" -- \
+  apk add --no-cache \
+    giflib-dev \
+    imlib2-dev \
+    libexif-dev \
+    libwebp-dev \
+    libxft-dev
+
+buildah run "$build" -- \
+  git clone --depth 1 https://codeberg.org/nsxiv/nsxiv.git
+
+buildah copy "$build" config/config.patch nsxiv/config.patch
+
+buildah run "$build" -- \
+  patch -u nsxiv/config.def.h -i nsxiv/config.patch
+
+buildah run "$build" -- \
+  sh -c 'cd nsxiv && make'
+
+buildah copy "$container" \
+  config/image-info \
+  config/thumb-info \
+  /root/.config/nsxiv/exec/
+
+buildah copy --from "$build" "$container" /nsxiv/nsxiv /usr/local/bin/nsxiv
+
+buildah run "$container" -- \
+  apk add --no-cache \
+    imlib2 \
+    libexif \
+    libx11 \
+    libxft
+
+buildah config \
+  --cmd '[]' \
+  --entrypoint '["nsxiv"]' \
+  "$container"
+
+buildah commit "$container" nsxiv

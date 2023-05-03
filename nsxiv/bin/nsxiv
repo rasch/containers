@@ -1,0 +1,13 @@
+#!/bin/sh
+
+detached=true
+
+for i in "$@"; do
+  if test -d "$i"; then
+    thumbs=true
+  elif test "$i" = '-h'; then
+    unset detached
+  fi
+done
+
+xpod ${detached:+-Bdfx} -- nsxiv ${thumbs:+-t} "$@"

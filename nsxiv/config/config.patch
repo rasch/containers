@@ -1,0 +1,22 @@
+--- config.def.h
++++ config.h
+@@ -7,13 +7,13 @@
+ /* colors and font can be overwritten via X resource properties.
+  * See nsxiv(1), X(7) section Resources and xrdb(1) for more information.
+  */
+-static const char *DEFAULT_WIN_BG     = "white";
+-static const char *DEFAULT_WIN_FG     = "black";
+-static const char *DEFAULT_MARK_COLOR = NULL;  /* NULL means it will default to window foreground */
++static const char *DEFAULT_WIN_BG     = "#282a36";
++static const char *DEFAULT_WIN_FG     = "#6272a4";
++static const char *DEFAULT_MARK_COLOR = "#ff5555";  /* NULL means it will default to window foreground */
+ #if HAVE_LIBFONTS
+-static const char *DEFAULT_BAR_BG     = NULL;  /* NULL means it will default to window background */
+-static const char *DEFAULT_BAR_FG     = NULL;  /* NULL means it will default to window foreground */
+-static const char *DEFAULT_FONT       = "monospace-8";
++static const char *DEFAULT_BAR_BG     = "#6272a4";  /* NULL means it will default to window background */
++static const char *DEFAULT_BAR_FG     = "#f8f8f2";  /* NULL means it will default to window foreground */
++static const char *DEFAULT_FONT       = "monospace";
+ 
+ /* if true, statusbar appears on top of the window */
+ static const bool TOP_STATUSBAR = false;

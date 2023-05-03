@@ -9,6 +9,7 @@ buildah run "$container" -- \
 
 buildah run "$container" -- \
   wget -qP /usr/local/share/man/man1 \
+    https://codeberg.org/nsxiv/nsxiv/raw/branch/master/etc/nsxiv.1 \
     https://github.com/asciidoctor/asciidoctor/raw/main/man/asciidoctor.1 \
     https://github.com/jgm/pandoc/raw/main/man/pandoc.1 \
     https://github.com/mawww/kakoune/raw/master/doc/kak.1 \

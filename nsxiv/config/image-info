@@ -1,0 +1,9 @@
+#!/bin/sh
+
+exec 2>/dev/null
+
+filename=$(basename -- "$1")
+filesize=$(du -Hh -- "$1" | cut -f 1)
+dimensions="$2x$3"
+
+printf "\xef\x80\xbe %s [%s] [%s]" "$filename" "$dimensions" "$filesize"
