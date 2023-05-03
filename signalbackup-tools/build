@@ -1,0 +1,38 @@
+#!/bin/sh
+
+container=$(buildah from --pull alpine:edge)
+build=$(buildah from localhost/build)
+
+trap 'buildah rm "$build" "$container"' EXIT INT TERM
+
+buildah run "$build" -- \
+  apk add --no-cache \
+    openssl-dev \
+    sqlite-dev \
+    which
+
+buildah run "$build" -- \
+    git clone https://github.com/bepaald/signalbackup-tools.git
+
+buildah run "$build" -- \
+  sh -c 'cd signalbackup-tools && sh BUILDSCRIPT.sh'
+
+buildah copy --from "$build" "$container" \
+  /signalbackup-tools/signalbackup-tools /usr/local/bin/signalbackup-tools
+
+buildah run "$container" -- \
+  apk add --no-cache \
+    libstdc++-dev \
+    sqlite-dev
+
+buildah config \
+  --cmd '[]' \
+  --entrypoint '["signalbackup-tools"]' \
+  "$container"
+
+if ! buildah run -t "$container" -- signalbackup-tools --help >/dev/null; then
+  printf 'ERROR: signalbackup-tools not installed\n' >&2
+  exit 1
+fi
+
+buildah commit "$container" signalbackup-tools
