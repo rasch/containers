@@ -1,0 +1,6 @@
+#!/bin/sh
+
+xpod -Bl -- \
+  --env COLORTERM \
+  --env TERM \
+  mc "$@"
