@@ -1,0 +1,6 @@
+#!/bin/sh
+
+xpod -BglpX -- \
+  --env COLORTERM \
+  --env TERM \
+  lf "$@"

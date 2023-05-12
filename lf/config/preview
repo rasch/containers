@@ -1,0 +1,127 @@
+#!/bin/sh
+
+f="$1"
+w="$2"
+h="$3"
+
+cache=/tmp/$(printf '%s' "$f" | tr '/' '+').png
+
+display_image() {
+  chafa \
+    --format symbols \
+    --size "${w}x${h}" \
+    "${1:-$cache}"
+}
+
+display_text() {
+  bat \
+    --color always \
+    --italic-text always \
+    --paging never \
+    --style plain \
+    --terminal-width "$w" \
+    --wrap character \
+    "$@"
+}
+
+preview_audio() {
+  if ! test -f "$cache"; then
+    ffmpeg -i "$f" -an -c:v copy "$cache" >/dev/null 2>&1
+  fi
+
+  display_image
+  mediainfo --Output=JSON "$f" | jq -C .media.track[]
+}
+
+preview_video() {
+  if ! test -f "$cache"; then
+    # get frame from about 50% into video
+    ss=$(($(mediainfo --Output='General;%Duration%' "$f") / 2000))
+    ffmpeg -ss "$ss" -i "$f" -frames:v 1 "$cache" >/dev/null 2>&1
+  fi
+
+  display_image
+  mediainfo --Output=JSON "$f" | jq -C .media.track[]
+}
+
+preview_pdf() {
+  if ! test -f "$cache"; then
+    gs -sDEVICE=pngalpha -dLastPage=1 -o "$cache" "$f" >/dev/null 2>&1
+    # pdftoppm -png -f 1 -singlefile "$f" "$cache"
+  fi
+
+  display_image
+}
+
+preview_manpage() {
+  man "$f" | sed 's/.\x8//g' | display_text --language man
+}
+
+preview_font() {
+  text='ABCDEFGHIJKLM\nNOPQRSTUVWXYZ\nabcdefghijklm\nnopqrstuvwxyz\n1234567890\n!@$\%(){}[]'
+
+  if ! test -f "$cache"; then
+    magick convert -size 532x365 xc:'#ffffff' \
+      -gravity center \
+      -pointsize 38 \
+      -font "$f" \
+      -fill '#000000' \
+      -annotate +0+0 "$text" \
+      -flatten \
+      "$cache" >/dev/null 2>&1
+  fi
+
+  display_image
+}
+
+preview_comic() {
+  match='.jpe?g$|.png$|.gif$|.bmp$|.tiff?$'
+  cover=$(bsdtar -tf "$f" | sort | grep -iEm 1 "$match")
+  comic_cache=/tmp/"$(printf '%s' "$cover" | tr '/' '+')"
+
+  bsdtar -xOf "$f" "$cover" > "$comic_cache"
+  display_image "$comic_cache"
+
+  unset cover
+}
+
+preview_epub() {
+  match='^.*cover.*\.(jpe?g|png|gif|svg)$'
+
+  # Sort files in epub by size and grab the largest image. YOLO!
+  cover=$(unzip -l "$f" | sort -r | grep -iEm 1 "$match" | awk '{print $4}')
+
+  if test -z "$cover"; then
+    match='^.*\.(jpe?g|png|gif|svg)$'
+    cover=$(unzip -l "$f" | sort -r | grep -iEm 1 "$match" | awk '{print $4}')
+  fi
+
+  epubcache=/tmp/"$(printf '%s' "$cover" | tr '/' '+')"
+
+  bsdtar -xOf "$f" "$cover" > "$epubcache"
+  display_image "$epubcache"
+}
+
+case $(printf '%s' "$f" | tr '[:upper:]' '[:lower:]') in
+  *.7z) 7z l "$f" ;;
+  *.rar) bsdtar -tf "$f" ;;
+  *.tar*|*.tZ|*.t[glpx]z|*.ta[zZ]|*.tb[2z]|*.tbz2|*.tz2) tar tf "$f" ;;
+  *.zip) unzip -l "$f" ;;
+  *.cbr|*.cbt|*.cbz) preview_comic ;;
+  *.epub) preview_epub ;;
+  *.pdf) preview_pdf ;;
+  *.[1-8]|*.[1-8].gz) preview_manpage ;;
+  *.csv) head -n 1 "$f" | sed 's/,/\n/g' ;;
+  *.iso) iso-info --no-header -l "$f" ;;
+  *.json) jq -C . "$f" ;;
+  *.otf|*.ttf|*.woff) preview_font ;;
+  *.ape|*.flac|*.m4a|*.mp3|*.ogg|*.opus|*.wav|*.wma) preview_audio ;;
+  *.bmp|*.gif|*.jpeg|*.jpg|*.png|*.svg) display_image "$f" ;;
+  *.avi|*.flv|*.mkv|*.mp4|*.mpeg|*.mpg|*.ogv|*.webm|*.wmv) preview_video ;;
+  *) case $(file -Lb --mime-type "$f") in
+       image/*) display_image "$f" ;;
+       video/*) preview_video "$f" ;;
+       application/x-pie-executable) : ;;
+       *) display_text -- "$f" ;;
+     esac ;;
+esac

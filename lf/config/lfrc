@@ -1,0 +1,195 @@
+# ----------------------------------------------------------------------
+# general settings
+# ----------------------------------------------------------------------
+
+set cursoractivefmt "\033[7m"
+set cursorparentfmt "\033[7;2m"
+set cursorpreviewfmt "\033[7;2m"
+set errorfmt "\033[1;31m"
+set hidden
+set hiddenfiles '.*:lost+found'
+set icons
+set incsearch
+set incfilter
+set infotimefmtnew '2006 Jan 02 15:04'
+set infotimefmtold '2006 Jan 02 15:04'
+set numberfmt "\033[90m"
+set previewer /root/.config/lf/preview
+set promptfmt "\033[90m%u@%h:\033[34m%d\033[0m%f%S\033[32m%F\033[0m"
+set ratios '1:2:2'
+set ruler 'acc:progress:df:selection:ind'
+set scrolloff 5
+set tabstop 4
+set tagfmt "\033[32m"
+set timefmt '2006 Mon Jan 02 15:04:05'
+
+map <enter> open
+map . set hidden!
+map I set icons!
+map P set preview!
+map x $$f
+map X !$f
+map DD delete
+
+map gi !chafa --clear --sizejkk "$f"
+
+# ----------------------------------------------------------------------
+# archives
+# ----------------------------------------------------------------------
+
+cmd archive %{{
+  set -f
+  count=$(echo "$fx" | wc -l)
+
+  if test "$count" -gt 1; then
+    name="${1:-archive}"
+    IFS='
+'
+    mkdir /tmp/"$name"
+    cp -r $fx /tmp/"$name"
+    tar c -C /tmp -zf "$name".tar.gz "$name"
+    rm -rf /tmp/"$name"
+  elif test -d "$fx"; then
+    tar czf "$fx".tar.gz "${fx##*/}"
+  else
+    gzip -k9 "$fx"
+  fi
+}}
+
+cmd 7z %7z a -mx9 -- "$f.7z" "${f##*/}"
+cmd tbz2 %tar cjf "$f.tar.bz2" "${f##*/}"
+cmd txz %tar cJf "$f.tar.xz" "${f##*/}"
+
+cmd extract %{{
+  case "$f" in
+    *.tar.bz2|*.tb2|*.tbz|*.tbz2|*.tz2) tar xjf "$f" ;;
+    *.tar.gz|*.taz|*.tgz|*.tpz) tar xzf "$f" ;;
+    *.tar.lz|*.tar.lzma|*.tlz) tar xaf "$f" ;;
+    *.tar.xz|*.txz) tar xJf "$f" ;;
+    *.tar.Z|*.tZ|*.taZ) tar xZf "$f" ;;
+    *.tar) tar xf "$f" ;;
+    *.gz) gunzip "$f" ;;
+    *.bz2) bunzip2 "$f" ;;
+    *.xz) unxz "$f" ;;
+    *.zip) unzip "$f" ;;
+    *.Z) gzip -d "$f" ;;
+    *.rar) bsdtar xf "$f" ;;
+    *.7z) 7z x "$f" ;;
+    *) printf 'Unsupported archive format\n' ;;
+  esac
+}}
+
+map aa archive
+map ae extract
+map a7 7z
+map ab tbz2
+map ax txz
+
+# ----------------------------------------------------------------------
+# fzf
+# ----------------------------------------------------------------------
+
+cmd fzf ${{
+  ans=$(find . -maxdepth 3 | fzf --reverse)
+  test -d "$ans" && cmd=cd
+  lf -remote "send $id ${cmd:-select} \"$ans\""
+}}
+
+map gf fzf
+
+# ----------------------------------------------------------------------
+# scratchpad
+# ----------------------------------------------------------------------
+
+cmd new-lf-window $"$lf" "$PWD"
+map go new-lf-window
+
+# ----------------------------------------------------------------------
+# music player (ffplay)
+# ----------------------------------------------------------------------
+
+cmd queue-play &{{
+  if ! test -f /tmp/queue.playing; then
+    pkill ffplay
+    touch /tmp/queue.playing
+    while test -f /tmp/queue.playing && test -s /tmp/queue.m3u; do
+      ffplay -nodisp -autoexit "$(head -n 1 /tmp/queue.m3u)"
+      if test -f /tmp/queue.playing; then
+        tail -n +2 /tmp/queue.m3u > /tmp/queue.m3u.tmp
+        mv /tmp/queue.m3u.tmp /tmp/queue.m3u
+      fi
+    done
+  fi
+}}
+
+cmd queue-stop &{{
+  rm -f /tmp/queue.playing
+  pkill ffplay
+}}
+
+cmd queue-next &{{
+  pkill ffplay
+}}
+
+cmd queue-add &{{
+  echo "$fx" | \
+    grep -E '.*.(ape|flac|m4a|mp3|ogg|opus|wav|wma)$' >> /tmp/queue.m3u 
+}}
+
+cmd queue-insert &{{
+  head -n 1 /tmp/queue.m3u >> /tmp/queue.m3u.tmp
+
+  echo "$fx" | \
+    grep -E '.*.(ape|flac|m4a|mp3|ogg|opus|wav|wma)$' >> /tmp/queue.m3u.tmp
+
+  tail -n +2 /tmp/queue.m3u >> /tmp/queue.m3u.tmp
+  mv /tmp/queue.m3u.tmp /tmp/queue.m3u
+}}
+
+cmd queue-clear &{{
+  rm -f /tmp/queue.m3u /tmp/queue.playing
+  pkill ffplay
+}}
+
+cmd queue-current &{{
+  lf -remote "send $id select \"$(head -n 1 /tmp/queue.m3u)\""
+}}
+
+cmd queue-edit $${EDITOR:-vi} /tmp/queue.m3u
+cmd queue-view $${PAGER:-less} /tmp/queue.m3u
+
+cmd queue-shuffle %{{
+  find "$PWD" -type f \
+    -name '*.ape' \
+    -o -name '*.flac' \
+    -o -name '*.m4a' \
+    -o -name '*.mp3' \
+    -o -name '*.ogg' \
+    -o -name '*.opus' \
+    -o -name '*.wav' \
+    -o -name '*.wma' | \
+  shuf > /tmp/queue.m3u
+}}
+
+map \\p queue-play
+map \\s queue-stop
+map \\n queue-next
+map \\a queue-add
+map \\i queue-insert
+map \\x queue-clear
+map \\c queue-current
+map \\e queue-edit
+map \\v queue-view
+map \\z queue-shuffle
+
+map \\\\ &{{
+  rm -f /tmp/queue.playing
+  pkill ffplay
+
+  case $(printf '%s' "$f" | tr '[:upper:]' '[:lower:]') in
+    *.ape|*.flac|*.m4a|*.mp3|*.ogg|*.opus|*.wav|*.wma)
+      ffplay -nodisp -autoexit "$f" ;;
+    *.avi|*.flv|*.mkv|*.mp4|*.mpeg|*.mpg|*.ogv|*.webm|*.wmv)
+      ffplay -autoexit "$f" ;;
+  esac
+}}

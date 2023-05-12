@@ -50,6 +50,7 @@ buildah run "$container" -- \
     isync-doc \
     jq-doc \
     less \
+    lf-doc \
     man-pages \
     man-pages-posix \
     mandoc \

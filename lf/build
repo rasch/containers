@@ -1,0 +1,39 @@
+#!/bin/sh
+
+container=$(buildah from --pull alpine:edge)
+
+trap 'buildah rm "$container"' EXIT INT TERM
+
+buildah run "$container" -- \
+  apk add --no-cache \
+    7zip \
+    bat \
+    chafa \
+    ffmpeg \
+    file \
+    fzf \
+    ghostscript \
+    imagemagick \
+    jq \
+    lf \
+    libarchive-tools \
+    libcdio-tools \
+    mandoc \
+    mediainfo \
+    xz
+
+buildah copy "$container" config /root/.config/lf/
+
+buildah config \
+  --cmd '[]' \
+  --entrypoint '["lf"]' \
+  --env BAT_THEME=Dracula \
+  --env PAGER='bat --italic-text always' \
+  "$container"
+
+if ! buildah run -t "$container" -- lf -version; then
+  printf 'ERROR: lf not installed\n' >&2
+  exit 1
+fi
+
+buildah commit "$container" lf
