@@ -25,6 +25,7 @@ set timefmt '2006 Mon Jan 02 15:04:05'
 
 map <enter> open
 map . set hidden!
+map i $/root/.config/lf/preview "$f" "$lf_width" "$lf_height" | less -R
 map I set icons!
 map P set preview!
 map x $$f
