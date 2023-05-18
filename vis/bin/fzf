@@ -1,0 +1,9 @@
+#!/bin/sh
+
+xpod -Bl -- \
+  --entrypoint '["sh", "-c"]' \
+  --env COLORTERM \
+  --env LANG \
+  --env TERM \
+  vis \
+    "fzf --preview 'bat --color=always --number {}' --print0 | xargs -I {} -0 vis {}"
