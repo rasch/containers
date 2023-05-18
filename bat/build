@@ -1,0 +1,24 @@
+#!/bin/sh
+
+container=$(buildah from --pull alpine:edge)
+
+trap 'buildah rm "$container"' EXIT INT TERM
+
+buildah run "$container" -- \
+  apk add --no-cache \
+    bat \
+    file
+
+buildah copy "$container" config /root/.config/bat
+
+buildah config \
+  --cmd '[]' \
+  --entrypoint '["bat"]' \
+  "$container"
+
+if ! buildah run -t "$container" -- bat --version; then
+  printf 'ERROR: bat not installed\n' >&2
+  exit 1
+fi
+
+buildah commit "$container" bat
