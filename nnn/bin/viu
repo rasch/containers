@@ -1,0 +1,7 @@
+#!/bin/sh
+
+xpod -B -- \
+  --entrypoint viu \
+  --env COLORTERM \
+  --env TERM \
+  nnn "$@"

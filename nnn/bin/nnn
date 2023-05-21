@@ -1,0 +1,21 @@
+#!/bin/sh
+
+if ! test -d "$HOME"/.config/rclone; then
+  mkdir -p "$HOME"/.config/rclone
+fi
+
+# block char dir exe reg hardlink symlink missing orphan fifo socket other
+colors=$(printf '0b 03 04 02 00 06 06 08 09 05 0b 01' | tr -d ' ')
+
+# shellcheck disable=SC2016
+xpod -Bl -- \
+  --cap-add SYS_ADMIN --device /dev/fuse \
+  --env COLORTERM \
+  --env NNN_OPTS='cH' \
+  --env NNN_COLORS='2222' \
+  --env NNN_FCOLORS="$colors" \
+  --env NNN_OPENER=/root/.config/nnn/plugins/nuke \
+  --env NNN_PLUG='i:-!viu "$nnn";p:-!bat --paging=always "$nnn"*;f:-!vi "$(fzf --preview "bat --color=always --style=numbers {}")"*' \
+  --env TERM \
+  --volume "$HOME"/.config/rclone:/root/.config/rclone \
+  nnn "$@"

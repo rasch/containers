@@ -1,0 +1,11 @@
+#!/bin/sh
+
+if ! test -d "$HOME"/.config/rclone; then
+  mkdir -p "$HOME"/.config/rclone
+fi
+
+xpod -BlG -- \
+  --cap-add SYS_ADMIN --device /dev/fuse \
+  --entrypoint rclone \
+  --volume "$HOME"/.config/rclone:/root/.config/rclone \
+  nnn "$@"

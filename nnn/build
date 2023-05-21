@@ -1,0 +1,52 @@
+#!/bin/sh
+
+build=$(buildah from localhost/build)
+container=$(buildah from --pull alpine:edge)
+
+trap 'buildah rm "$build" "$container"' EXIT INT TERM
+
+buildah run "$build" -- \
+  apk add --no-cache \
+    musl-fts-dev \
+    pkgconf \
+    readline-dev
+
+buildah run "$build" -- \
+  git clone --depth 1 https://github.com/jarun/nnn.git
+
+buildah run "$build" -- \
+  wget https://git.alpinelinux.org/aports/plain/community/nnn/musl-fts-support.patch
+
+buildah run "$build" -- \
+  patch -u nnn/Makefile -i musl-fts-support.patch
+
+buildah run "$build" -- \
+  sh -c 'cd nnn && make O_NERD=1 && strip nnn'
+
+buildah copy --from "$build" "$container" /nnn/nnn /usr/local/bin/nnn
+buildah copy --from "$build" "$container" /nnn/plugins /root/.config/nnn/plugins
+
+buildah copy "$container" ../bat/config /root/.config/bat
+
+buildah run "$container" -- \
+  apk add --no-cache \
+    bat \
+    file \
+    fuse3 \
+    fzf \
+    musl-fts \
+    rclone \
+    readline \
+    viu
+
+buildah config \
+  --cmd '[]' \
+  --entrypoint '["nnn"]' \
+  "$container"
+
+if ! buildah run -t "$container" -- nnn -V; then
+  printf 'ERROR: nnn not installed\n' >&2
+  exit 1
+fi
+
+buildah commit "$container" nnn
