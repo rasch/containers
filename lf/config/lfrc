@@ -134,7 +134,7 @@ cmd queue-next &{{
 
 cmd queue-add &{{
   echo "$fx" | \
-    grep -E '.*.(ape|flac|m4a|mp3|ogg|opus|wav|wma)$' >> /tmp/queue.m3u 
+    grep -E '.*.(ape|flac|m4a|mp3|ogg|opus|wav|wma)$' >> /tmp/queue.m3u
 }}
 
 cmd queue-insert &{{

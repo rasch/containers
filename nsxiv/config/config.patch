@@ -17,6 +17,6 @@
 +static const char *DEFAULT_BAR_BG     = "#6272a4";  /* NULL means it will default to window background */
 +static const char *DEFAULT_BAR_FG     = "#f8f8f2";  /* NULL means it will default to window foreground */
 +static const char *DEFAULT_FONT       = "monospace";
- 
+
  /* if true, statusbar appears on top of the window */
  static const bool TOP_STATUSBAR = false;
