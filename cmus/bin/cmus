@@ -1,0 +1,15 @@
+#!/bin/sh
+
+MUSIC_DIRECTORY="${MUSIC_DIRECTORY:-$HOME/Music}"
+
+# Create cmus configuration directory to persist state (and not have to load
+# the music folder every time).
+mkdir -p "$HOME"/.config/cmus
+
+xpod -p -- \
+  --env COLORTERM \
+  --env TERM \
+  --volume "$HOME"/.config/cmus:/root/.config/cmus \
+  --volume "$MUSIC_DIRECTORY":/music \
+  --workdir /music \
+  cmus "$@"
