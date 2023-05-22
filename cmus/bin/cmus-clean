@@ -1,0 +1,6 @@
+#!/bin/sh
+
+xpod -Bp -- \
+  --env COLORTERM \
+  --env TERM \
+  cmus "$@"
