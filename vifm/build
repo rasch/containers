@@ -1,0 +1,35 @@
+#!/bin/sh
+
+container=$(buildah from --pull alpine:edge)
+
+trap 'buildah rm "$container"' EXIT INT TERM
+
+buildah run "$container" -- \
+  apk add --no-cache \
+    bat \
+    file \
+    neovim \
+    vifm \
+    viu
+
+buildah copy "$container" config/vifmrc /root/.vifm/vifmrc.local
+buildah copy "$container" ../bat/config /root/.config/bat
+
+buildah run "$container" -- \
+  cp /usr/share/vifm/vifmrc /root/.vifm/vifmrc
+
+buildah run "$container" -- \
+  sh -c 'printf "source /root/.vifm/vifmrc.local\n" >> /root/.vifm/vifmrc'
+
+buildah config \
+  --cmd '[]' \
+  --entrypoint '["vifm"]' \
+  --env EDITOR=nvim \
+  "$container"
+
+if ! buildah run -t "$container" -- vifm --version; then
+  printf 'ERROR: vifm not installed\n' >&2
+  exit 1
+fi
+
+buildah commit "$container" vifm
