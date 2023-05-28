@@ -1,0 +1,20 @@
+#!/bin/sh
+
+container=$(buildah from --pull debian:stable-slim)
+
+trap 'buildah rm "$container"' EXIT INT TERM
+
+buildah run "$container" -- apt update
+buildah run "$container" -- \
+  apt install --no-install-recommends --yes \
+    build-essential \
+    ca-certificates \
+    curl \
+    git
+
+buildah run "$container" -- sh -c 'rm -rf /var/lib/apt/lists/*'
+
+buildah run "$container" -- \
+  sh -c 'curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y'
+
+buildah commit "$container" build-glibc
