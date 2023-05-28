@@ -50,7 +50,7 @@ set-face global LineNumbers comment
 set-face global LineNumberCursor default
 set-face global LineNumbersWrapped +d@comment
 set-face global MatchingChar green+uF
-set-face global Whitespace comment
+set-face global Whitespace bright-black+F
 set-face global WrapMarker comment
 
 # italicize HTML/JSX attributes
