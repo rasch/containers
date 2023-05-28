@@ -1,0 +1,1 @@
+test -n "$CLIFM" && PS1="$PS1"'(clifm) '

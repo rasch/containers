@@ -1,0 +1,32 @@
+#!/bin/sh
+
+container=$(buildah from --pull alpine:edge)
+
+trap 'buildah rm "$container"' EXIT INT TERM
+
+buildah run "$container" -- \
+  apk add --no-cache \
+    clifm \
+    file \
+    fzf \
+    less \
+    viu
+
+buildah copy "$container" \
+  config/clifmrc \
+  /root/.config/clifm/profiles/default/clifmrc
+
+buildah copy "$container" config/profile /root/.profile
+buildah copy "$container" config/env /root/.env
+
+buildah config \
+  --cmd '[]' \
+  --entrypoint '["sh", "-lc", "clifm"]' \
+  "$container"
+
+if ! buildah run --env TERM -t "$container" -- clifm --version; then
+  printf 'ERROR: clifm not installed\n' >&2
+  exit 1
+fi
+
+buildah commit "$container" clifm
