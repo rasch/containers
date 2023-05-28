@@ -1,0 +1,95 @@
+#!/bin/sh
+
+build=$(buildah from localhost/build)
+container=$(buildah from --pull alpine:edge)
+
+trap 'buildah rm "$build" "$container"' EXIT INT TERM
+
+buildah run "$build" -- \
+  apk add --no-cache \
+    ncurses-dev
+
+buildah run "$build" -- \
+  git clone --depth 1 https://github.com/mawww/kakoune.git
+
+buildah run "$build" -- \
+  make -C kakoune/src debug=no install-strip
+
+# alpine is missing the col command, use sed instead for viewing man pages
+buildah run "$build" -- \
+  sed -i "s|col -b -x|sed 's/.\\\x8//g'|" /usr/local/share/kak/rc/tools/man.kak
+
+# install kakmerge
+buildah run "$build" -- sh <<'EOF'
+  git clone https://github.com/lenormf/kakmerge.git
+  mv kakmerge/kakmerge /usr/local/bin/
+EOF
+
+buildah copy --from "$build" "$container" /usr/local /usr/local
+buildah copy --from "$build" "$container" \
+  /kakoune/contrib/tmux-256color.terminfo /tmp/
+
+buildah copy "$container" ../tmux/config/tmux.conf /root/.config/tmux/tmux.conf
+buildah copy "$container" config/bin /usr/local/bin/
+buildah copy "$container" config/editorconfig/.editorconfig /
+buildah copy "$container" config/kak /root/.config/kak
+
+# setup global kakoune rc
+buildah run "$container" -- \
+  ln -s /usr/local/share/kak/rc /root/.config/kak/autoload/rc
+
+buildah run "$container" -- \
+  apk add --no-cache \
+    aspell \
+    aspell-en \
+    ctags \
+    darkhttpd \
+    dropbear-dbclient \
+    dropbear-scp \
+    dropbear-ssh \
+    editorconfig \
+    exa \
+    file \
+    git \
+    gnupg \
+    libstdc++ \
+    mandoc \
+    ncurses \
+    ripgrep \
+    tmux \
+    w3m \
+    xsel
+
+# set up terminfo for kakoune with tmux
+buildah run "$container" -- \
+  tic /tmp/tmux-256color.terminfo
+
+buildah run "$container" -- \
+  rm -f /tmp/tmux-256color.terminfo
+
+buildah config \
+  --cmd '[]' \
+  --entrypoint '["tmux", "new-session", "kak"]' \
+  --env EDITOR=kak \
+  --env LANG=en_US.UTF-8 \
+  "$container"
+
+# configure kakmerge
+buildah run "$container" -- sh <<'EOF'
+  git config --global merge.tool kakmerge
+  git config --global mergetool.kakmerge.trustExitCode true
+
+  # shellcheck disable=SC2016
+  git config --global mergetool.kakmerge.cmd \
+    'env LOCAL="$LOCAL" BASE="$BASE" REMOTE="$REMOTE" MERGED="$MERGED" kakmerge'
+
+  # don't keep *.orig files after merge
+  git config --global mergetool.keepBackup false
+EOF
+
+if ! buildah run --tty "$container" -- kak -version; then
+  printf 'ERROR: kakoune not installed\n' >&2
+  exit 1
+fi
+
+buildah commit "$container" kakoune
