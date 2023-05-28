@@ -1,4 +1,4 @@
 #!/bin/sh
 
 # -x is only needed here for clipboard sharing
-xpod -Blx -- kakoune "$@"
+xpod -Blx -- --env COLORTERM kakoune "$@"
