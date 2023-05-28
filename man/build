@@ -26,9 +26,14 @@ buildah run "$container" -- \
   apk add --no-cache \
     aspell-doc \
     bash-doc \
+    bat-doc \
+    binutils-doc \
     bmon-doc \
     cbonsai-doc \
+    chafa-doc \
+    clifm-doc \
     cmatrix-doc \
+    cmus-doc \
     ctags-doc \
     curl-doc \
     dillo-doc \
@@ -39,6 +44,7 @@ buildah run "$container" -- \
     file-doc \
     fontforge-doc \
     fortune-doc \
+    gcc-doc \
     gimp-doc \
     git-doc \
     gnupg-doc \
@@ -51,19 +57,23 @@ buildah run "$container" -- \
     jq-doc \
     less \
     lf-doc \
+    make-doc \
     man-pages \
     man-pages-posix \
     mandoc \
     mandoc-apropos \
     mandoc-doc \
+    mc-doc \
     mpc-doc \
     mpd-doc \
     mpv-doc \
     mupdf-doc \
     ncmpcpp-doc \
     ncurses-doc \
+    nnn-doc \
     nodejs-current-doc \
     notmuch-doc \
+    patch-doc \
     qemu-doc \
     redshift-doc \
     ripgrep-doc \
@@ -75,6 +85,9 @@ buildah run "$container" -- \
     socat-doc \
     stellarium-doc \
     tmux-doc \
+    vifm-doc \
+    vimb-doc \
+    vis-doc \
     w3m-doc \
     xsel-doc \
     yt-dlp-doc
