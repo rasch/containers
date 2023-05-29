@@ -44,6 +44,7 @@ buildah run "$container" -- \
     aspell-en \
     ctags \
     darkhttpd \
+    discount \
     dropbear-dbclient \
     dropbear-scp \
     dropbear-ssh \

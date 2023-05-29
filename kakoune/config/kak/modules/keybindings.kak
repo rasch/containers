@@ -133,6 +133,7 @@ map global user = :align-center<ret> -docstring 'center line'
 # misc
 
 map global user a *%s<ret> -docstring 'select all'
+map global user m :preview-markdown<ret> -docstring 'preview markdown'
 map global user x :chmod<ret> -docstring 'change file mode'
 map global user / /(?i) -docstring 'case-insensitive search'
 map global user B '|banner "$kak_selection"<ret>' -docstring 'bruce banner'
