@@ -16,7 +16,7 @@ buildah run "$build" -- \
 buildah run "$build" -- \
   git clone --depth 1 https://github.com/sulami/FrankenWM
 
-buildah copy "$build" config/config.def.h FrankenWM/config.h
+buildah copy "$build" config/config.h FrankenWM/config.h
 
 buildah run "$build" -- \
   make -C FrankenWM clean install
