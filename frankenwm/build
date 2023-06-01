@@ -1,0 +1,39 @@
+#!/bin/sh
+
+build=$(buildah from localhost/build)
+container=$(buildah from --pull alpine:edge)
+
+trap 'buildah rm "$build" "$container"' EXIT INT TERM
+
+buildah run "$build" -- \
+  apk add --no-cache \
+    libx11-dev \
+    libxcb-dev \
+    xcb-util-dev \
+    xcb-util-keysyms-dev \
+    xcb-util-wm-dev
+
+buildah run "$build" -- \
+  git clone --depth 1 https://github.com/sulami/FrankenWM
+
+buildah copy "$build" config/config.def.h FrankenWM/config.h
+
+buildah run "$build" -- \
+  make -C FrankenWM clean install
+
+buildah run "$container" -- \
+  apk add --no-cache \
+    libx11 \
+    libxcb \
+    xcb-util \
+    xcb-util-keysyms \
+    xcb-util-wm
+
+buildah copy --from "$build" "$container" /usr/local /usr/local
+
+buildah config \
+  --cmd '[]' \
+  --entrypoint '["frankenwm"]' \
+  "$container"
+
+buildah commit "$container" frankenwm
