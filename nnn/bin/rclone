@@ -4,8 +4,7 @@ if ! test -d "$HOME"/.config/rclone; then
   mkdir -p "$HOME"/.config/rclone
 fi
 
-xpod -Bl -- \
-  --cap-add SYS_ADMIN --device /dev/fuse \
+xpod -BFl -- \
   --entrypoint rclone \
   --volume "$HOME"/.config/rclone:/root/.config/rclone \
   nnn "$@"

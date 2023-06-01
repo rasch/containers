@@ -8,8 +8,7 @@ fi
 colors=$(printf '0b 03 04 02 00 06 06 08 09 05 0b 01' | tr -d ' ')
 
 # shellcheck disable=SC2016
-xpod -Bl -- \
-  --cap-add SYS_ADMIN --device /dev/fuse \
+xpod -BFl -- \
   --env COLORTERM \
   --env NNN_OPTS='cH' \
   --env NNN_COLORS='2222' \
