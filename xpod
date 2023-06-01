@@ -1,0 +1,390 @@
+#!/bin/sh
+
+attach=true
+cap_drop=true
+command=${XPOD_RUNTIME:-podman}
+xephyr_background=${XPOD_XEPHYR_BG:-#21222c}
+xephyr_opts=${XPOD_XEPHYR_OPTS:- -dpi 120 -fullscreen}
+
+while :; do
+  case "$1" in
+    #| Options
+    #| -------
+
+    -a | --audio)
+      #| -a, --audio
+      #|     Audio enabled by mounting `/dev/snd` in the container.
+      #|     The `--pulseaudio`/`-p` option is usually a better choice
+      #|     (when supported) because this option is greedy and does not
+      #|     share the audio. Also, it will not work if another
+      #|     application is already using the audio device.
+      #|
+      audio=true
+      shift
+      ;;
+
+    -b | --bind-cwd)
+      #| -b, --bind-cwd
+      #|     Bind the current working directory to /data in the
+      #|     container.
+      #|
+      bindcwd=true
+      shift
+      ;;
+
+    -B | --workdir-cwd)
+      #| -B, --workdir-cwd
+      #|     Same as `--bind-cwd` option with the addition of setting
+      #|     /data as the workdir in the container.
+      #|
+      bindcwd=true
+      workdircwd=true
+      shift
+      ;;
+
+    -c | --capabilities)
+      #| -c, --capabilities
+      #|     By default, `xpod` drops ALL capabilities for additional
+      #|     security. This flag allows for running containers with the
+      #|     default capabilites enabled.
+      #|
+      unset cap_drop
+      shift
+      ;;
+
+    -d | --detach)
+      #| -d, --detach
+      #|     Detach by using "--detach" flag. Disables the default
+      #|     "--interactive --tty" flags.
+      #|
+      detach=true
+      unset attach
+      shift
+      ;;
+
+    -D | --display)
+      #| -D, --display
+      #|     Run GUI application in a nested X server using Xephyr.
+      #|     This option can be used to get better isolation between the
+      #|     host and the container. Also useful for running window
+      #|     managers in containers. The main drawback with this option,
+      #|     the clipboard is also isolated within its own display.
+      #|
+      if ! command -v Xephyr >/dev/null 2>&1; then
+        printf 'Xephyr is required but not not found. aborting.\n' >&2
+        exit 1
+      fi
+
+      display=:0
+
+      for i in $(seq 1 100); do
+        if ! test -e /tmp/.X11-unix/X"$i"; then
+          display=:"$i"
+          break
+        fi
+      done
+
+      # shellcheck disable=SC2086
+      Xephyr -ac -br -extension MIT-SHM -extension XTEST -noreset $xephyr_opts \
+        "$display" &
+
+      sleep 1 # HACK: wait for Xephyr to start
+
+      if test -f "$HOME"/.Xresources; then
+        env DISPLAY="$display" xrdb -merge "$HOME"/.Xresources
+      fi
+
+      if command -v xsetroot >/dev/null 2>&1; then
+        env DISPLAY="$display" xsetroot \
+          -cursor_name left_ptr \
+          -name " DISPLAY=$display " \
+          -solid "$xephyr_background"
+      fi
+
+      # This fixes a bug in some applications where the dpi isn't set properly
+      # in the container and the font size is too small on 4K displays. The
+      # issue was happening when running alacritty in FrankenWM.
+      if command -v hsetroot >/dev/null 2>&1; then
+        env DISPLAY="$display" hsetroot -solid "$xephyr_background"
+      fi
+
+      shift
+      ;;
+
+    -f | --fonts)
+      #| -f, --fonts
+      #|     Fonts from /usr/share/fonts and ~/.local/share/fonts are
+      #|     shared with the container in readonly mode. Also, local
+      #|     font configuration ~/.config/fontconfig is mounted in the
+      #|     container. This is an alternative to installing the fonts
+      #|     directly in the container.
+      #|
+      fonts=true
+      shift
+      ;;
+
+    -F | --fuse)
+      #| -F, --fuse
+      #|     Add capabilities to container for mounting FUSE file
+      #|     systems and mount the /dev/fuse device in the container.
+      #|
+      fuse=true
+      shift
+      ;;
+
+    -g | --gpu)
+      #| -g, --gpu
+      #|     Share the GPU with the container by mounting /dev/dri and
+      #|     /dev/vga_arbiter
+      #|
+      gpu=true
+      shift
+      ;;
+
+    -G | --group)
+      #| -G, --group
+      #|     Run container in a shared group (pod) by running the
+      #|     container with the `--pod containers` podman option. Mostly
+      #|     useful for containers that need to share the network
+      #|     (localhost).
+      #|
+      if ! command -v podman >/dev/null 2>&1; then
+        printf 'podman is required but not not found. aborting.\n' >&2
+        exit 1
+      fi
+
+      if ! test "$command" = podman; then
+        printf 'the XPOD_RUNTIME must be set to podman. aborting.\n' >&2
+        exit 1
+      fi
+
+      if ! podman pod exists containers; then
+        podman pod create containers
+      fi
+
+      group=true
+      shift
+      ;;
+
+    -h | --help)
+      #| -h, --help
+      #|     Show this help menu.
+      #|
+      printf '%s\n\n%s\n%s\n\n%s' \
+        "Usage: ${0##*/} [options] [--] [runtime-opts] <container> [...]" \
+        "  A wrapper for podman or other docker compatible container" \
+        "  runtimes that allows for easy host OS access control" \
+        "$(grep -E '^[[:space:]]*#\|.*' "$0" | sed 's/^[[:space:]]*#|/ /')" | \
+        ${PAGER:-"cat"}
+      exit 0
+      ;;
+
+    -i | --interactive)
+      #| -i, --interactive
+      #|     By default, `xpod` runs the container with the options
+      #|     `--interactive --tty`. This option disables the `--tty` flag.
+      #|
+      interactive=true
+      unset attach
+      shift
+      ;;
+
+    -l | --localtime)
+      #| -l, --localtime
+      #|     Set time zone in container to match the host by mounting
+      #|     /etc/localtime as a read only volume
+      #|
+      localtime=true
+      shift
+      ;;
+
+    -p | --pulseaudio)
+      #| -p, --pulseaudio
+      #|     Start pulseaudio server on host if not already running,
+      #|     create socket and configuration files in /tmp and mount in
+      #|     container.
+      #|
+      if ! command -v pactl >/dev/null 2>&1; then
+        printf 'pactl/libpulse is required but not not found. aborting.\n' >&2
+        exit 1
+      fi
+
+      if ! command -v pulseaudio >/dev/null 2>&1; then
+        printf 'pulseaudio is required but not not found. aborting.\n' >&2
+        exit 1
+      fi
+
+      # start pulseaudio daemon if it's not running
+      if ! pactl list >/dev/null 2>&1; then
+        pulseaudio --daemonize >/dev/null
+      fi
+
+      # create pulseaudio socket if it doesn't exist
+      if test ! -S /tmp/pulseaudio.socket; then
+        pactl load-module module-native-protocol-unix socket=/tmp/pulseaudio.socket
+
+        # create pulseaudio client configuration for socket
+        printf '# pulseaudio.client.conf
+          default-server = unix:/tmp/pulseaudio.socket
+          autospawn = no
+          daemon-binary = /bin/true
+          enable-shm = false
+        ' | sed 's/^ *//' > /tmp/pulseaudio.client.conf
+      fi
+
+      pulseaudio=true
+      shift
+      ;;
+
+    -t | --tty)
+      #| -t, --tty
+      #|     By default, `xpod` runs the container with the options
+      #|     `--interactive --tty`. This option disables the
+      #|     `--interactive` flag.
+      #|
+      tty=true
+      unset attach
+      shift
+      ;;
+
+    -u | --user)
+      #| -u, --user
+      #|     Set the user in the container to the same UID (`id -u`) and
+      #|     GID (`id -g`) as the host user.
+      #|
+      user=true
+      shift
+      ;;
+
+    -w | --webcam)
+      #| -w, --webcam
+      #|     Mount /dev/video0 device in container to give access to
+      #|     webcam.
+      #|
+      webcam=true
+      shift
+      ;;
+
+    -x | -x11 | -X | --X11)
+      #| -x, --x11
+      #|     Share the host X server display with container. Allows for
+      #|     clipboard sharing between the host and container. Also
+      #|     tries to set the cursor in the container to match host.
+      #|
+      #| -X, --X11
+      #|     Same as the `-x`/`--x11` option with the addition of
+      #|     enabling shared memory (IPC namespace) with host (MIT-SHM
+      #|     X extension).
+      #|
+      display=${display:-${DISPLAY:-:0}}
+
+      cursor_themes="$HOME"/.local/share/icons
+      cursor_conf="$HOME"/.icons/default/index.theme
+
+      if test -d "$cursor_themes"; then
+        cursors=true
+      fi
+
+      if test -f "$cursor_conf"; then
+        cursor_theme=$(grep -E '^Inherits=' "$cursor_conf" | sed 's/^Inherits=//')
+      fi
+
+      if test "$1" = '-X' -o "$1" = '-X11'; then
+        ipchost=true
+      fi
+
+      shift
+      ;;
+
+    --)
+      #| --
+      #|     End of options.
+      #|
+      shift
+      break
+      ;;
+
+    --* | -?)
+      error_unknown_option "$1"
+      ;;
+
+    -*) # split joined short args
+      split="$1"
+      shift
+      # shellcheck disable=SC2046
+      set -- $(printf '%s' "$split" | cut -c 2- | sed 's/./-& /g') "$@"
+      continue
+      ;;
+
+    *) # end of args
+      break
+      ;;
+
+    #| Environment Variables
+    #| ---------------------
+    #| XPOD_RUNTIME       Set the runtime for running the container.
+    #|                    Default is 'podman'.
+    #|
+    #| XPOD_XEPHYR_BG     Set background color of Xephyr display using
+    #|                    `xsetroot`. Default is '#21222c', which is a
+    #|                    dark gray that looks good with the Dracula
+    #|                    theme colors.
+    #|
+    #| XPOD_XEPHYR_OPTS   Set options for the Xephyr command when using
+    #|                    the `-D` or `--display` option. Default is set
+    #|                    as '-dpi 120 -fullscreen'. The default is best
+    #|                    for running window managers on a 4K monitor.
+    #|                    If not using a 4K monitor this should be set
+    #|                    to '-fullscreen'. When used for applications
+    #|                    other than window managers, it should be set
+    #|                    to '-resizeable' to allow the containerized
+    #|                    application window to behave more like a
+    #|                    normal window.
+    #|
+    #| Examples
+    #| --------
+    #| Serve a static web site from the current directory.
+    #|
+    #|     xpod -BG -- alpine:edge /bin/sh -l
+    #|     apk add --no-cache darkhttpd
+    #|     darkhttpd . --port 5150
+    #|
+    #| Download the home page served by the above example.
+    #|
+    #|     xpod -G -- alpine:edge wget -qO- 127.0.0:5150
+    #|
+    #|
+  esac
+done
+
+$command run \
+  --rm \
+  --security-opt no-new-privileges \
+  ${cap_drop:+--cap-drop ALL} \
+  ${fuse:+--cap-add SYS_ADMIN --device /dev/fuse} \
+  ${audio:+--volume /dev/snd:/dev/snd:ro} \
+  ${attach:+--interactive --tty} \
+  ${interactive:+--interactive} \
+  ${tty:+--tty} \
+  ${detach:+--detach} \
+  ${fonts:+--volume /usr/share/fonts:/usr/share/fonts:ro} \
+  ${fonts:+--volume "$HOME"/.local/share/fonts:/root/.local/share/fonts:ro} \
+  ${fonts:+--volume "$HOME"/.config/fontconfig:/root/.config/fontconfig:ro} \
+  ${localtime:+--volume /etc/localtime:/etc/localtime:ro} \
+  ${gpu:+--volume /dev/dri:/dev/dri} \
+  ${gpu:+--volume /dev/vga_arbiter:/dev/vga_arbiter} \
+  ${group:+--pod containers} \
+  ${webcam:+--device /dev/video0} \
+  ${display:+--env DISPLAY="$display"} \
+  ${display:+--volume /tmp/.X11-unix/X"${display#:}":/tmp/.X11-unix/X"${display#:}":rw} \
+  ${ipchost:+--ipc=host} \
+  ${cursors:+--volume "$cursor_themes":/root/.local/share/icons} \
+  ${cursor_theme:+--env XCURSOR_THEME="$cursor_theme"} \
+  ${bindcwd:+--mount type=bind,source="$(pwd)",target=/data} \
+  ${workdircwd:+--workdir /data} \
+  ${user:+--user "$(id -u):$(id -g)"} \
+  ${pulseaudio:+--env PULSE_SERVER=unix:/tmp/pulseaudio.socket} \
+  ${pulseaudio:+--env PULSE_COOKIE=/tmp/pulseaudio.cookie} \
+  ${pulseaudio:+--volume /tmp/pulseaudio.socket:/tmp/pulseaudio.socket} \
+  ${pulseaudio:+--volume /tmp/pulseaudio.client.conf:/etc/pulse/client.conf} \
+  "$@"
