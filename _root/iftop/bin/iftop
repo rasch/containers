@@ -1,3 +1,9 @@
 #!/bin/sh
 
-su -c "xpod -l -- --privileged --net host iftop $*"
+su=sudo
+
+if command -v doas >/dev/null 2>&1; then
+  su=doas
+fi
+
+"$su" xpod -l -- --privileged --net host iftop "$@"
