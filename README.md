@@ -49,7 +49,7 @@ Serve a static web site from the current directory.
 ```sh
 xpod -B -- --publish 5150:5150 alpine:edge /bin/sh -l
 apk add --no-cache darkhttpd
-darkhttp . --port 5150
+darkhttpd . --port 5150
 ```
 
 Read a PDF file with `mupdf`...
