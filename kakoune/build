@@ -57,6 +57,19 @@ buildah run "$container" -- \
     vscode-langservers-extracted \
     yaml-language-server'
 
+# configure LSP for additional languages
+buildah run "$build" -- \
+  sh -lc 'printf '\''
+[language.svelte]
+filetypes = ["svelte"]
+roots = ["package.json"]
+command = "svelteserver"
+args = ["--stdio"]
+'\'' >> kak-lsp/kak-lsp.toml'
+
+buildah copy --from "$build" "$container" \
+  /kak-lsp/kak-lsp.toml /root/.config/kak-lsp/kak-lsp.toml
+
 buildah copy --from "$build" "$container" /usr/local /usr/local
 buildah copy --from "$build" "$container" \
   /kakoune/contrib/tmux-256color.terminfo /tmp/
