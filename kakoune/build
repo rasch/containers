@@ -1,7 +1,7 @@
 #!/bin/sh
 
 build=$(buildah from localhost/build)
-container=$(buildah from --pull alpine:edge)
+container=$(buildah from localhost/build)
 
 trap 'buildah rm "$build" "$container"' EXIT INT TERM
 
@@ -24,6 +24,38 @@ buildah run "$build" -- sh <<'EOF'
   git clone https://github.com/lenormf/kakmerge.git
   mv kakmerge/kakmerge /usr/local/bin/
 EOF
+
+# install kak-lsp
+buildah run "$build" -- \
+  git clone https://github.com/kak-lsp/kak-lsp
+
+buildah run "$build" -- \
+  sh -lc 'cd kak-lsp && cargo install --locked --force --path .'
+
+buildah copy --from "$build" "$container" \
+  /root/.cargo/bin/kak-lsp /usr/local/bin/kak-lsp
+
+# add rust-analyzer for Rust LSP
+buildah run "$build" -- sh <<'EOF'
+  link=https://github.com/rust-analyzer/rust-analyzer/releases/latest/download
+  file=rust-analyzer-x86_64-unknown-linux-musl.gz
+  wget -qO- "$link/$file" | gunzip -c - > /usr/local/bin/rust-analyzer
+  chmod +x /usr/local/bin/rust-analyzer
+EOF
+
+# add LSP for several languages
+buildah run "$container" -- \
+  sh -lc '. /root/.profile && \
+  pnpm add --global \
+    bash-language-server \
+    @elm-tooling/elm-language-server \
+    elm-format \
+    elm-test \
+    svelte-language-server \
+    typescript \
+    typescript-language-server \
+    vscode-langservers-extracted \
+    yaml-language-server'
 
 buildah copy --from "$build" "$container" /usr/local /usr/local
 buildah copy --from "$build" "$container" \
@@ -70,7 +102,7 @@ buildah run "$container" -- \
 
 buildah config \
   --cmd '[]' \
-  --entrypoint '["tmux", "new-session", "kak"]' \
+  --entrypoint '["/bin/sh", "-lc", "tmux new-session kak"]' \
   --env EDITOR=kak \
   --env LANG=en_US.UTF-8 \
   "$container"
