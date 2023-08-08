@@ -49,13 +49,13 @@ buildah run "$container" -- \
   pnpm add --global \
     bash-language-server \
     @elm-tooling/elm-language-server \
+    elm \
     elm-format \
     elm-test \
     svelte-language-server \
     typescript \
     typescript-language-server \
-    vscode-langservers-extracted \
-    yaml-language-server'
+    vscode-langservers-extracted'
 
 # configure LSP for additional languages
 buildah run "$build" -- \
