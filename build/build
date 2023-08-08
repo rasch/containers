@@ -8,9 +8,17 @@ buildah run "$container" -- \
   apk add --no-cache \
     build-base \
     git \
+    nodejs-current \
     rustup
 
 buildah run "$container" -- \
   rustup-init -y
+
+# install pnpm
+buildah run "$container" -- sh <<'EOF'
+  command -p "$(which pnpm)" --version >/dev/null 2>&1 || \
+    { wget -qO- https://get.pnpm.io/install.sh | \
+      ENV="$HOME/.profile" SHELL="$(which sh)" sh -; }
+EOF
 
 buildah commit "$container" build
