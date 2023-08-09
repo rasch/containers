@@ -115,7 +115,7 @@ buildah run "$container" -- \
 
 buildah config \
   --cmd '[]' \
-  --entrypoint '["/bin/sh", "-lc", "tmux new-session kak"]' \
+  --entrypoint '["tmux", "new-session", "kak"]' \
   --env EDITOR=kak \
   --env LANG=en_US.UTF-8 \
   "$container"
