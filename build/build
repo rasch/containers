@@ -21,4 +21,12 @@ buildah run "$container" -- sh <<'EOF'
       ENV="$HOME/.profile" SHELL="$(which sh)" sh -; }
 EOF
 
+# set up environment variables that would normally be set up when running a
+# login shell. This ensures that the rust and pnpm binaries are available.
+# shellcheck disable=SC2016
+buildah config \
+  --env PNPM_HOME='/root/.local/share/pnpm' \
+  --env PATH='$PNPM_HOME:/root/.cargo/bin:$PATH' \
+  "$container"
+
 buildah commit "$container" build
