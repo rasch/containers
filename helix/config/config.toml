@@ -7,7 +7,7 @@ mouse = false
 rulers = [80]
 
 [editor.statusline]
-left = ["mode", "spacer", "spinner", "file-name", "file-modification-indicator", "version-control"]
+left = ["mode", "spacer", "spinner", "file-name", "spacer", "version-control", "file-modification-indicator"]
 center = []
 right = ["diagnostics", "file-type", "selections", "position", "file-encoding"]
 separator = "|"
