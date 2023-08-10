@@ -1,0 +1,3 @@
+#!/bin/sh
+
+xpod -Blx -- --env COLORTERM helix "$@"

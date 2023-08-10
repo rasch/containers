@@ -1,0 +1,46 @@
+theme = "dracula"
+
+[editor]
+auto-format = false
+color-modes = true
+mouse = false
+rulers = [80]
+
+[editor.statusline]
+left = ["mode", "spacer", "spinner", "file-name", "file-modification-indicator", "version-control"]
+center = []
+right = ["diagnostics", "file-type", "selections", "position", "file-encoding"]
+separator = "|"
+mode.normal = "normal"
+mode.insert = "insert"
+mode.select = "select"
+
+[editor.lsp]
+display-messages = true
+display-inlay-hints = true
+
+[editor.cursor-shape]
+normal = "block"
+insert = "bar"
+select = "underline"
+
+[editor.file-picker]
+hidden = false
+
+[editor.indent-guides]
+render = true
+character = "▏"
+
+[keys.normal]
+"#" = "toggle_comments"
+esc = ["collapse_selection", "keep_primary_selection"]
+
+[keys.normal."+"]
+f = ":format"
+w = ":set whitespace.render all"
+W = ":set whitespace.render none"
+s = ":set soft-wrap.enable true"
+S = ":set soft-wrap.enable false"
+
+[keys.insert.j]
+j = "normal_mode"

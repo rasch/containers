@@ -1,0 +1,72 @@
+#!/bin/sh
+
+build=$(buildah from --pull alpine:edge)
+container=$(buildah from localhost/build)
+
+trap 'buildah rm "$build" "$container"' EXIT INT TERM
+
+# NOTE: normally this should be done with the `build` container to save time and
+# bandwidth, but the version of `rust` installed by `rustup` wouldn't build
+# helix dynamically linked (which is required for tree-sitter on musl-libc
+# systems). This is (hopefully) just a temporary workaround.
+buildah run "$build" -- \
+  apk add --no-cache \
+    build-base \
+    cargo \
+    git \
+    rust
+
+buildah run "$build" -- \
+  git clone https://github.com/helix-editor/helix
+
+buildah run \
+  --env RUSTFLAGS="-C target-feature=-crt-static -C strip=symbols" \
+  "$build" -- \
+    sh -lc 'cd helix && cargo install --path helix-term --locked'
+
+buildah run "$build" -- \
+  rm -fr helix/runtime/grammars/sources
+
+buildah copy --from "$build" "$container" helix/target/release/hx /usr/local/bin
+buildah copy --from "$build" "$container" helix/runtime /root/.config/helix/runtime
+
+buildah copy "$container" config /root/.config/helix
+
+# add rust-analyzer for Rust LSP
+buildah run "$container" -- sh <<'EOF'
+  link=https://github.com/rust-analyzer/rust-analyzer/releases/latest/download
+  file=rust-analyzer-x86_64-unknown-linux-musl.gz
+  wget -qO- "$link/$file" | gunzip -c - > /usr/local/bin/rust-analyzer
+  chmod +x /usr/local/bin/rust-analyzer
+EOF
+
+# add LSP for several languages
+buildah run "$container" -- \
+  sh -lc '. /root/.profile && \
+  pnpm add --global \
+    bash-language-server \
+    dockerfile-language-server-nodejs \
+    @elm-tooling/elm-language-server \
+    elm \
+    elm-format \
+    elm-test \
+    svelte-language-server \
+    typescript \
+    typescript-language-server \
+    vscode-langservers-extracted'
+
+buildah run "$container" -- \
+  rm -fr "$HOME"/.cache
+
+buildah run "$container" -- \
+  apk add --no-cache \
+    xsel
+
+buildah config \
+  --cmd '[]' \
+  --entrypoint '["hx"]' \
+  --env EDITOR=hx \
+  --env LANG=en_US.UTF-8 \
+  "$container"
+
+buildah commit "$container" helix
