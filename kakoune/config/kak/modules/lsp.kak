@@ -3,7 +3,7 @@ hook global WinSetOption filetype=(css|elm|html|javascript|json|rust|sh|svelte|t
   lsp-enable-window
 }
 
-map global user l %{ :enter-user-mode lsp<ret> } -docstring "LSP mode"
+map global user l %{:enter-user-mode lsp<ret>} -docstring "LSP mode"
 map global insert <tab> '<a-;>:try lsp-snippets-select-next-placeholders catch %{ execute-keys -with-hooks <lt>tab> }<ret>' -docstring 'Select next snippet placeholder'
 map global object a '<a-semicolon>lsp-object<ret>' -docstring 'LSP any symbol'
 map global object <a-a> '<a-semicolon>lsp-object<ret>' -docstring 'LSP any symbol'
