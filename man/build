@@ -73,6 +73,7 @@ buildah run "$container" -- \
     nnn-doc \
     nodejs-current-doc \
     notmuch-doc \
+    openssl-doc \
     patch-doc \
     qemu-doc \
     redshift-doc \

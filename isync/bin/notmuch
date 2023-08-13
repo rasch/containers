@@ -1,0 +1,20 @@
+#!/bin/sh
+
+MAILDIR="${MAILDIR:-$HOME/.config/mail}"
+NAME="${NAME:-${GIT_AUTHOR_NAME:-${GIT_COMMITTER_NAME:-$(whoami)}}}"
+
+test -n "$EMAIL" || \
+  { printf 'ERROR: environment variable EMAIL not set.\n'; exit 1; }
+
+test -d "$MAILDIR" || \
+  { printf 'ERROR: [%s] MAILDIR path does not exist.\n' "$MAILDIR"; exit 1; }
+
+test -n "$NAME" || \
+  { printf 'ERROR: environment variable NAME not set.\n'; exit 1; }
+
+xpod -Bl -- \
+  --env EMAIL \
+  --env NAME \
+  --volume "$MAILDIR":/root/mail \
+  --entrypoint '["notmuch"]' \
+  isync "$@"

@@ -1,0 +1,3 @@
+# An empty configuration file for notmuch. Environment variables (NAME & EMAIL)
+# are used for configuration. The mail directory for storing mail and the
+# notmuch database is mounted in the default locatation at "$HOME/mail"

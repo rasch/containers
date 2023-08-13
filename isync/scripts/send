@@ -1,0 +1,97 @@
+#!/bin/sh
+
+app="${0##*/}"
+
+passcmd() {
+  pass="$HOME"/mail/."$1".asc
+
+  test -f "$pass" || \
+    { printf 'ERROR: password file not found: %s\n' "$pass" >&2; exit 1; }
+
+  gpg --for-your-eyes-only --no-tty -qd "$pass"
+}
+
+case "$1" in
+  zoho)
+    user="${ZOHO_EMAIL:-$EMAIL}"
+    server='smtp.zoho.com'
+    port=587
+    pass="$(passcmd "$1")"
+    ;;
+  gmail)
+    user="${GMAIL_EMAIL:-$EMAIL}"
+    server='smtp.gmail.com'
+    port=587
+    pass="$(passcmd "$1")"
+    ;;
+  riseup)
+    user="${RISEUP_EMAIL:-$EMAIL}"
+    server='mail.riseup.net'
+    port=587
+    pass="$(passcmd "$1")"
+    ;;
+  *)
+    printf '=== Usage ===
+
+    %s <account> <file|stdin>
+
+    === Examples ===
+
+    %s zoho draft.eml
+
+    ------
+
+    %s zoho <<EOF
+    To: recipient@example.com
+    From: Quinn Jones <quinn@example.com>
+    Subject: Subject Text
+
+    Body text.
+    EOF
+
+    ------
+
+    alias send="%s zoho"
+    send draft.eml
+
+    === Notes ===
+
+    - The "From:" header must use the same user email
+      address as the smtp auth user.
+
+    - The <account> must be one of "zoho", "gmail", or
+      "riseup".
+
+    - The <account> requires a password in a gpg encrypted
+      file at "%s/mail/.<account>.asc". The file must only
+      contain the authentication password for the <account>.
+      Most likely it will be an application password set up
+      through the email provider (because 2FA **should** be
+      enabled). For example, to configure the password for a
+      zoho account:
+
+          gpg -ae %s/mail/.zoho
+          shred -zu %s/mail/.zoho
+
+    - The email address / smtp user is configured by setting
+      environment variables: ZOHO_EMAIL, GMAIL_EMAIL and/or
+      RISEUP_EMAIL. All of these fallback to using the EMAIL
+      environment variable.
+    ' "$app" "$app" "$app" "$app" "$HOME" "$HOME" "$HOME" | sed 's/^ \{4\}//'
+    exit 1
+    ;;
+esac && shift
+
+cmd() {
+  sendmail -t -au"$user" -ap"$pass" -f "$user" -H \
+    "openssl s_client -quiet -starttls smtp -tls1_2 -connect $server:$port"
+}
+
+if test -f "$1"; then
+  cmd < "$1"
+elif test -p /dev/stdin; then
+  cmd
+else
+  printf 'ERROR: %s requires an existing file or a heredoc (stdin)\n' "$app"
+  exit 1
+fi

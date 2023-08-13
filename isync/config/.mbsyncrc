@@ -1,0 +1,86 @@
+# ------------------------------------------------
+# ZOHO
+# ------------------------------------------------
+
+IMAPStore zoho-remote
+Host imap.zoho.com
+Port 993
+UserCmd "echo \"${ZOHO_EMAIL:-EMAIL}\""
+PassCmd "+gpg -q --for-your-eyes-only --no-tty -d /root/mail/.zoho.asc"
+SSLType IMAPS
+SSLVersions TLSv1.2
+CertificateFile /etc/ssl/certs/ca-certificates.crt
+
+MaildirStore zoho-local
+SubFolders Verbatim
+Path /root/mail/zoho/
+Inbox /root/mail/zoho/Inbox
+
+Channel zoho
+Far :zoho-remote:
+Near :zoho-local:
+Patterns *
+Sync Pull
+Create Both
+Remove Both
+Expunge Both
+CopyArrivalDate yes
+SyncState *
+
+# ------------------------------------------------
+# GMAIL
+# ------------------------------------------------
+
+IMAPStore gmail-remote
+Host imap.gmail.com
+Port 993
+UserCmd "echo \"${GMAIL_EMAIL:-EMAIL}\""
+PassCmd "+gpg -q --for-your-eyes-only --no-tty -d /root/mail/.gmail.asc"
+SSLType IMAPS
+SSLVersions TLSv1.2
+CertificateFile /etc/ssl/certs/ca-certificates.crt
+
+MaildirStore gmail-local
+SubFolders Verbatim
+Path /root/mail/gmail/
+Inbox /root/mail/gmail/Inbox
+
+Channel gmail
+Far :gmail-remote:
+Near :gmail-local:
+Patterns *
+Sync Pull
+Create Both
+Remove Both
+Expunge Both
+CopyArrivalDate yes
+SyncState *
+
+# ------------------------------------------------
+# RISEUP
+# ------------------------------------------------
+
+IMAPStore riseup-remote
+Host mail.riseup.net
+Port 993
+UserCmd "echo \"${RISEUP_EMAIL:-EMAIL}\""
+PassCmd "+gpg -q --for-your-eyes-only --no-tty -d /root/mail/.riseup.asc"
+SSLType IMAPS
+SSLVersions TLSv1.2
+CertificateFile /etc/ssl/certs/ca-certificates.crt
+
+MaildirStore riseup-local
+SubFolders Verbatim
+Path /root/mail/riseup/
+Inbox /root/mail/riseup/Inbox
+
+Channel riseup
+Far :riseup-remote:
+Near :riseup-local:
+Patterns *
+Sync Pull
+Create Both
+Remove Both
+Expunge Both
+CopyArrivalDate yes
+SyncState *

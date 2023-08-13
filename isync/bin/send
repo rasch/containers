@@ -1,0 +1,20 @@
+#!/bin/sh
+
+GPG_DIR="${GPG_DIR:-${GNUPGHOME:-$HOME/.config/gnupg}}"
+MAILDIR="${MAILDIR:-$HOME/.config/mail}"
+
+test -d "$GPG_DIR" || \
+  { printf 'ERROR: [%s] GPG_DIR path does not exist.\n' "$GPG_DIR"; exit 1; }
+
+test -d "$MAILDIR" || \
+  { printf 'ERROR: [%s] MAILDIR path does not exist.\n' "$MAILDIR"; exit 1; }
+
+xpod -Bl -- \
+  --env EMAIL \
+  --env GMAIL_EMAIL \
+  --env RISEUP_EMAIL \
+  --env ZOHO_EMAIL \
+  --volume "$GPG_DIR":/root/.gnupg \
+  --volume "$MAILDIR":/root/mail \
+  --entrypoint '["send"]' \
+  isync "$@"
