@@ -60,6 +60,7 @@ buildah run "$container" -- \
 
 buildah run "$container" -- \
   apk add --no-cache \
+    shellcheck \
     xsel
 
 buildah config \
