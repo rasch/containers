@@ -1,7 +1,7 @@
 #!/bin/sh
 
-GPG_DIR="${GPG_DIR:-${GNUPGHOME:-$HOME/.config/gnupg}}"
-MAILDIR="${MAILDIR:-$HOME/.config/mail}"
+GPG_DIR="${GPG_DIR:-${GNUPGHOME:-$HOME/.config/xpod/gnupg}}"
+MAILDIR="${MAILDIR:-$HOME/.config/xpod/mail}"
 
 test -d "$GPG_DIR" || \
   { printf 'ERROR: [%s] GPG_DIR path does not exist.\n' "$GPG_DIR"; exit 1; }

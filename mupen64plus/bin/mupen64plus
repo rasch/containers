@@ -1,6 +1,6 @@
 #!/bin/sh
 
-config="$HOME"/.config/mupen64plus
+config="$HOME"/.config/xpod/mupen64plus
 
 for i in config screenshot save; do
   mkdir -p "$config/$i"

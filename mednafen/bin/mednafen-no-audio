@@ -1,7 +1,7 @@
 #!/bin/sh
 # https://mednafen.github.io/documentation/#sound.device
 
-MEDNAFEN_CONFIG="${MEDNAFEN_CONFIG:-$HOME/.config/mednafen}"
+MEDNAFEN_CONFIG="${MEDNAFEN_CONFIG:-$HOME/.config/xpod/mednafen}"
 
 xpod -Bgx -- \
   --volume "$MEDNAFEN_CONFIG":/root/.mednafen \

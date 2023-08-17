@@ -8,19 +8,19 @@ if ! test "$running" = true; then
 
   # Create the keybase configuration directories if they don't exist.
   # `.cache/keybase`: cache data
-  # `.local/share/keybase`: login data
-  # `.config/keybase`: configuration and device keys are here
+  # `.config/xpod/keybase/config`: configuration and device keys are here
+  # `.config/xpod/keybase/local`: login data
   mkdir -p \
     "$HOME"/.cache/keybase \
-    "$HOME"/.config/keybase \
-    "$HOME"/.local/share/keybase
+    "$HOME"/.config/xpod/keybase/config \
+    "$HOME"/.config/xpod/keybase/local
 
   # Start keybase services in `keybase-daemon` container.
   xpod -d -- \
     --name keybase-daemon \
     --volume "$HOME"/.cache/keybase:/root/.cache/keybase:U \
-    --volume "$HOME"/.config/keybase:/root/.config/keybase:U \
-    --volume "$HOME"/.local/share/keybase:/root/.local/share/keybase:U \
+    --volume "$HOME"/.config/xpod/keybase/config:/root/.config/keybase:U \
+    --volume "$HOME"/.config/xpod/keybase/local:/root/.local/share/keybase:U \
     --volume "$(pwd)":"$kbfs" \
     --workdir "$kbfs" \
     keybase

@@ -16,8 +16,8 @@ export EMAIL=quinn@example.com
 export GMAIL_EMAIL=example@gmail.com # $EMAIL
 export RISEUP_EMAIL=example@riseup.net # $EMAIL
 export ZOHO_EMAIL=quinn@example.com # $EMAIL
-export GPG_DIR="$HOME"/.gnupg # $GNUPGHOME -> $HOME/.config/gnupg
-export MAILDIR="$HOME"/mail # $HOME/.config/mail
+export GPG_DIR="$HOME"/.gnupg # $GNUPGHOME -> $HOME/.config/xpod/gnupg
+export MAILDIR="$HOME"/mail # $HOME/.config/xpod/mail
 ```
 
 Create directories for syncing email locally.

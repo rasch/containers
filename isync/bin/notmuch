@@ -1,6 +1,6 @@
 #!/bin/sh
 
-MAILDIR="${MAILDIR:-$HOME/.config/mail}"
+MAILDIR="${MAILDIR:-$HOME/.config/xpod/mail}"
 NAME="${NAME:-${GIT_AUTHOR_NAME:-${GIT_COMMITTER_NAME:-$(whoami)}}}"
 
 test -n "$EMAIL" || \

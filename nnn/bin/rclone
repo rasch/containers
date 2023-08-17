@@ -1,10 +1,10 @@
 #!/bin/sh
 
-if ! test -d "$HOME"/.config/rclone; then
-  mkdir -p "$HOME"/.config/rclone
+if ! test -d "$HOME"/.config/xpod/rclone; then
+  mkdir -p "$HOME"/.config/xpod/rclone
 fi
 
 xpod -BFl -- \
   --entrypoint rclone \
-  --volume "$HOME"/.config/rclone:/root/.config/rclone \
+  --volume "$HOME"/.config/xpod/rclone:/root/.config/rclone \
   nnn "$@"

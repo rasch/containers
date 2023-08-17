@@ -1,7 +1,7 @@
 #!/bin/sh
 # NOTE: Using ALSA because pulseaudio doesn't work with mednafen
 
-MEDNAFEN_CONFIG="${MEDNAFEN_CONFIG:-$HOME/.config/mednafen}"
+MEDNAFEN_CONFIG="${MEDNAFEN_CONFIG:-$HOME/.config/xpod/mednafen}"
 
 pasuspender -- \
   xpod -aBgx -- \

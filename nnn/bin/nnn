@@ -1,7 +1,7 @@
 #!/bin/sh
 
-if ! test -d "$HOME"/.config/rclone; then
-  mkdir -p "$HOME"/.config/rclone
+if ! test -d "$HOME"/.config/xpod/rclone; then
+  mkdir -p "$HOME"/.config/xpod/rclone
 fi
 
 # block char dir exe reg hardlink symlink missing orphan fifo socket other
@@ -16,5 +16,5 @@ xpod -BFl -- \
   --env NNN_OPENER=/root/.config/nnn/plugins/nuke \
   --env NNN_PLUG='i:-!viu "$nnn";p:-!bat --paging=always "$nnn"*;f:-!vi "$(fzf --preview "bat --color=always --style=numbers {}")"*' \
   --env TERM \
-  --volume "$HOME"/.config/rclone:/root/.config/rclone \
+  --volume "$HOME"/.config/xpod/rclone:/root/.config/rclone \
   nnn "$@"

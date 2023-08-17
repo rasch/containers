@@ -7,7 +7,7 @@ test -p "$FIFO" || mkfifo "$FIFO"
 
 xpod -dlp -- \
   --volume "$MUSIC_DIRECTORY":/data/music \
-  --volume "$HOME"/.config/mpd:/data/mpd \
+  --volume "$HOME"/.config/xpod/mpd:/data/mpd \
   --volume "$FIFO":"$FIFO" \
   --publish 6600:6600 \
   mpd --no-daemon "$@"
