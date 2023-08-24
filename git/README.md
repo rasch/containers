@@ -87,6 +87,10 @@ A few scripts have also been included:
 - `git pubkey`: Add public GPG key to Git repository as a raw `git` object. Run
   `git pubkey -h` for usage.
 
+- `mkrepo`: This script creates a new repository in the current directory and
+  sets up remote repositories at one or more of (sourcehut, codeberg, github,
+  and/or gitlab). Visit the [mkrepo repository] for configuration details.
+
 ## Git Email
 
 Git in this image is not configured for use with email. It requires the Alpine
@@ -115,6 +119,7 @@ issue!
 [Git]: https://git-scm.com/
 [GitAlias/gitalias]: https://github.com/GitAlias/gitalias.git
 [gitmoji]: https://gitmoji.dev/
+[mkrepo repository]: https://git.sr.ht/~rasch/mkrepo
 [email+git]: https://git-send-email.io/
 [Tips]: https://github.com/git-tips/tips
 [Workflow]: https://gist.github.com/jbenet/ee6c9ac48068889b0912

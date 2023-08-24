@@ -1,0 +1,23 @@
+#!/bin/sh
+
+GPG_DIR="${GPG_DIR:-${GNUPGHOME:-$HOME/.config/xpod/gnupg}}"
+
+test -d "$GPG_DIR" || \
+  { printf 'ERROR: [%s] GPG_DIR path does not exist.\n' "$GPG_DIR"; exit 1; }
+
+xpod -Bl -- \
+  --entrypoint '["entrypoint.sh", "mkrepo"]' \
+  --env GIT_USER \
+  --env CODEBERG_USER \
+  --env GITHUB_USER \
+  --env GITLAB_USER \
+  --env SOURCEHUT_USER \
+  --env CODEBERG_TOKEN \
+  --env GITHUB_TOKEN \
+  --env GITLAB_TOKEN \
+  --env SOURCEHUT_TOKEN \
+  --env EMAIL \
+  --env GIT_AUTHOR_NAME \
+  --env GIT_COMMITTER_NAME \
+  --volume "$GPG_DIR":/root/.gnupg \
+  git "$@"

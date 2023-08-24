@@ -6,6 +6,7 @@ trap 'buildah rm "$container"' EXIT INT TERM
 
 buildah run "$container" -- \
   apk add --no-cache \
+    curl \
     dropbear-dbclient \
     dropbear-scp \
     dropbear-ssh \
@@ -30,6 +31,12 @@ buildah run "$container" -- \
 buildah run "$container" -- \
   wget -qO /root/.config/git/gitalias \
     https://raw.githubusercontent.com/GitAlias/gitalias/main/gitalias.txt
+
+buildah run "$container" -- sh <<'EOF'
+wget -qO /usr/local/bin/mkrepo \
+  https://git.sr.ht/~rasch/mkrepo/blob/main/mkrepo && \
+  chmod +x /usr/local/bin/mkrepo
+EOF
 
 buildah run "$container" -- \
   git hooks
