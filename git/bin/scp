@@ -1,0 +1,13 @@
+#!/bin/sh
+
+GPG_DIR="${GPG_DIR:-${GNUPGHOME:-$HOME/.config/xpod/gnupg}}"
+
+test -d "$GPG_DIR" || \
+  { printf 'ERROR: [%s] GPG_DIR path does not exist.\n' "$GPG_DIR"; exit 1; }
+
+xpod -Bl -- \
+  --env COLORTERM \
+  --env TERM \
+  --volume "$GPG_DIR":/root/.gnupg \
+  --entrypoint '["entrypoint.sh", "scp"]' \
+  git "$@"

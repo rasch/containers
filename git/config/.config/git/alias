@@ -1,0 +1,54 @@
+[alias]
+  ; checkout merge reqeusts from gitlab locally
+  ; https://docs.gitlab.com/ee/user/project/merge_requests/index.html#checkout-merge-requests-locally
+  co-mr = "!git fetch \"${2:-origin}\" merge-requests/\"$1\"/head:mr/\"$1\" && git checkout mr/\"$1\" #"
+
+  ; checkout pull reqeusts from github locally
+  ; https://help.github.com/articles/checking-out-pull-requests-locally/
+  co-pr = "!git fetch \"${2:-origin}\" pull/\"$1\"/head:pr/\"$1\" && git checkout pr/\"$1\" #"
+
+  ; create an empty orphan branch
+  co-orphan = "!git checkout --orphan \"$1\" && git rm -rf . #"
+
+  ; checkout new branch
+  cob = checkout -b
+
+  ; merge with (--no-ff) or without (--ff-only) a commit
+  mf = merge --ff-only
+  mnf = merge --no-ff
+
+  ; push all branches to remote
+  push-all = push --all
+
+  ; delete branches from remote
+  push-delete = push --delete
+
+  ; push all refs to remote (branches, tags, remotes)
+  push-mirror = push --mirror
+
+  ; push all tags to remote
+  push-tags = push --tags
+
+  ; rebase last n commits
+  rebase-n = "!git rebase --interactive \"HEAD~$1\" #"
+
+  ; push to all remotes but skip CI on sourcehut
+  remotes-push-skip-ci = !git remote | xargs -I % -n 1 git push --push-option=skip-ci %
+
+  ; short alias for tag
+  t = tag
+
+  ; create an unsigned annotated tag
+  tans = tag --annotate --no-sign
+
+  ; delete tag
+  td = tag --delete
+
+  ; create new tag with message
+  tm = tag --message
+
+  ; show tags that are unreachable from specified commit or HEAD
+  tnm = tag --no-merged
+
+  ; undo a merge commit
+  unmerge = reset --hard HEAD^

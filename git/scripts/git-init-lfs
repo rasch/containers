@@ -1,0 +1,26 @@
+#!/bin/sh
+
+# git-init-lfs - Initialize `git-lfs` in the current repository
+#
+# This script is meant to be used with the `git-hooks` script. If not
+# using the git-hooks script, then just run `git lfs install --local`
+# directly.
+
+command -v git-lfs >/dev/null 2>&1 || \
+  { echo 'ERROR: "git-lfs" executable not found' >&2; exit 1; }
+
+git_dir="$(git rev-parse --git-dir 2>/dev/null)"
+
+test -n "$git_dir" || \
+  { echo 'ERROR: not in a git repository' >&2; exit 1; }
+
+hooks_path="$(git config --local --get core.hooksPath)"
+
+mkdir -p "$git_dir"/hooks/lfs
+git config --local core.hooksPath "$git_dir"/hooks/lfs
+git lfs install --local
+git config --local --unset core.hooksPath
+
+if test -n "$hooks_path"; then
+  git config --local core.hooksPath "$hooks_path"
+fi

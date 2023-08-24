@@ -1,0 +1,27 @@
+#!/bin/sh
+
+if test "$1" = '-h'; then
+  cat <<'EOF'
+Add public GPG key to git repository as a raw git object
+and tag it to prevent garbage collection from removing.
+
+Usage
+  export EMAIL=user@example.com
+  git pubkey
+  git show "$EMAIL.pub"
+EOF
+  exit
+fi
+
+tag="${EMAIL:?}.pub"
+id="${GPGKEY:-$EMAIL}"
+pubkey="$(gpg --armor --export "$id" 2>/dev/null)"
+
+test -n "$pubkey" || \
+  { echo "ERROR: No public key found for id: $id" >&2; exit 1; }
+
+git tag \
+  --annotate \
+  --message "git cat-file blob $tag | gpg --import" \
+  "$tag" "$(printf '%s' "$pubkey" | git hash-object -w --stdin)" && \
+  echo "Git imported the public key with the tag: $tag"

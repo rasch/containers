@@ -1,0 +1,52 @@
+#!/bin/sh
+
+hook="${0##*/}"
+git="$(git rev-parse --git-dir 2>/dev/null)"
+root="$(git rev-parse --show-toplevel 2>/dev/null)"
+hook_dir="$HOME/.config/git/hooks"
+
+if test -h "$0"; then
+  for script in \
+    "$hook_dir"/plugins/*/"$hook" \
+    "$git"/hooks/*/"$hook" \
+    "$root"/.githooks/*/"$hook"
+  do
+    if test -x "$script"; then
+      "$script" "$@" || exit $?
+    fi
+  done
+else
+  mkdir -p "$hook_dir/plugins"
+  git config --global core.hooksPath "$hook_dir"
+
+  for i in \
+    applypatch-msg \
+    pre-applypatch \
+    post-applypatch \
+    pre-commit \
+    pre-merge-commit \
+    prepare-commit-msg \
+    commit-msg \
+    post-commit \
+    pre-rebase \
+    post-checkout \
+    post-merge \
+    pre-push \
+    pre-receive \
+    update \
+    proc-receive \
+    post-receive \
+    post-update \
+    reference-transaction \
+    push-to-checkout \
+    pre-auto-gc \
+    post-rewrite \
+    sendemail-validate \
+    fsmonitor-watchman \
+    p4-changelist \
+    p4-prepare-changelist \
+    p4-post-changelist \
+    p4-pre-submit \
+    post-index-change
+  do ln -fs "$0" "$hook_dir/$i"; done
+fi

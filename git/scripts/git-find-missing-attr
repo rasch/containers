@@ -1,0 +1,447 @@
+#!/bin/sh
+
+while getopts 'hu' opt; do
+  case $opt in
+    h) help=true ;;
+    u) untracked=true ;;
+    *) ;;
+  esac
+done
+
+if test -n "$help"; then
+  cat <<EOF
+Usage
+  ${0##*/} [option]
+
+Description
+  Generate a .gitattributes file based on the output of "git ls-files".
+  If a .gitattributes file already exists in the root of the repository
+  new entries are appended to the end of the existing file. For this
+  script to work with an existing .gitattributes file, the first line
+  must be "* text=auto" (without the quotes).
+
+  Note: The generated .gitattributes file may need to be edited for your
+  specific project. The order may need to be changed if the file matches
+  multiple attribute lines to ensure the correct one is used. Also some
+  extensions are used by multiple languages, notably "*.m". This script
+  sets "diff=objc" for this extension by default, but if using Matlab or
+  Mathematica it should be changed to "diff=matlab" or
+  "diff=mathematica" respectively.
+
+Options
+  -h)  show this help menu
+  -u)  append untracked file attribute(s) to .gitattributes file
+EOF
+
+  exit
+fi
+
+root_path="$(git rev-parse --show-cdup 2>/dev/null)"
+test $? -eq 0 || { printf 'ERROR: not a git repository\n'; exit 1; }
+
+gitattributes="${root_path:-.}"/.gitattributes
+missing=0
+
+append() {
+  echo "$@" >> "$gitattributes"
+}
+
+# create basic .gitattribues file if it doesn't exist
+test -f "$gitattributes" || append '* text=auto'
+
+while read -r p; do
+  # skip file if already in gitattributes
+  if ! git check-attr --all "$p" | grep -q 'text: auto'; then
+    continue
+  fi
+
+  case "${p##*/}" in
+    # exact file name is...
+
+    .editorconfig)     append '.editorconfig text' ;;
+    .env)              append '.env text' ;;
+    .gitattributes)    append '.gitattributes text export-ignore' ;;
+    .gitconfig)        append '.gitconfig text' ;;
+    .gitignore)        append '.gitignore text export-ignore' ;;
+    .gitkeep)          append '.gitkeep export-ignore' ;;
+    .gvimrc)           append '.gvimrc text eol=lf' ;;
+    .htaccess)         append '.htaccess text' ;;
+    .prettierrc)       append '.prettierrc text' ;;
+    .vimrc)            append '.vimrc text eol=lf' ;;
+    AUTHORS)           append 'AUTHORS text' ;;
+    CHANGELOG)         append 'CHANGELOG text' ;;
+    CHANGES)           append 'CHANGES text' ;;
+    CONTRIBUTING)      append 'CONTRIBUTING text' ;;
+    COPYING)           append 'COPYING text' ;;
+    Cargo.lock)        append 'Cargo.lock text' ;;
+    Dockerfile)        append 'Dockerfile text' ;;
+    INSTALL)           append 'INSTALL text' ;;
+    LICENSE)           append 'LICENSE text' ;;
+    Makefile)          append 'Makefile text' ;;
+    NEWS)              append 'NEWS text' ;;
+    Procfile)          append 'Procfile text' ;;
+    TODO)              append 'TODO text' ;;
+    browserslist)      append 'browserslist text' ;;
+    copyright)         append 'copyright text' ;;
+    gradlew)           append 'gradlew text eol=lf' ;;
+    license)           append 'license text' ;;
+    makefile)          append 'makefile text' ;;
+    mvnw)              append 'mvnw text eol=lf' ;;
+    package-lock.json) append 'package-lock.json text eol=lf -diff' ;;
+    package.json)      append 'package.json text eol=lf' ;;
+    pnpm-lock.yaml)    append 'pnpm-lock.yaml text eol=lf -diff' ;;
+    readme)            append 'readme text' ;;
+    tsconfig.json)     append 'tsconfig.json linguist-language=JSON-with-Comments' ;;
+    yarn.lock)         append 'yarn.lock text -diff' ;;
+
+    # file extension is...
+
+    *.3gp)          append '*.3gp binary' ;;
+    *.3gpp)         append '*.3gpp binary' ;;
+    *.7z)           append '*.7z binary' ;;
+    *.R)            append '*.R text' ;;
+    *.RData)        append '*.RData binary' ;;
+    *.Rd)           append '*.Rd text' ;;
+    *.Rdata)        append '*.Rdata binary' ;;
+    *.Rdx)          append '*.Rdx binary' ;;
+    *.Rmd)          append '*.Rmd text' ;;
+    *.Rproj)        append '*.Rproj text' ;;
+    *.a)            append '*.a binary' ;;
+    *.ada)          append '*.ada text diff=ada' ;;
+    *.adb)          append '*.adb text diff=ada' ;;
+    *.adoc)         append '*.adoc text' ;;
+    *.ads)          append '*.ads text diff=ada' ;;
+    *.ai)           append '*.ai binary' ;;
+    *.app)          append '*.app binary' ;;
+    *.as)           append '*.as binary' ;;
+    *.asc)          append '*.asc text' ;;
+    *.asf)          append '*.asf binary' ;;
+    *.asx)          append '*.asx binary' ;;
+    *.avi)          append '*.avi binary' ;;
+    *.bak)          append '*.bak binary' ;;
+    *.bash)         append '*.bash text eol=lf' ;;
+    *.bat)          append '*.bat text eol=crlf' ;;
+    *.bibtex)       append '*.bibtex text diff=bibtex' ;;
+    *.bmp)          append '*.bmp binary' ;;
+    *.c)            append '*.c text diff=cpp' ;;
+    *.c++)          append '*.c++ text diff=cpp' ;;
+    *.cc)           append '*.cc text diff=cpp' ;;
+    *.cdxml)        append '*.cdxml text eol=crlf' ;;
+    *.cfg)          append '*.cfg text' ;;
+    *.chm)          append '*.chm binary' ;;
+    *.cjs)          append '*.cjs text' ;;
+    *.class)        append '*.class binary' ;;
+    *.cmd)          append '*.cmd text eol=crlf' ;;
+    *.cnf)          append '*.cnf text' ;;
+    *.coffee)       append '*.coffee text' ;;
+    *.compiled)     append '*.compiled text' ;;
+    *.conf)         append '*.conf text' ;;
+    *.config)       append '*.config text' ;;
+    *.cpi)          append '*.cpi text diff=cpp' ;;
+    *.cpp)          append '*.cpp text diff=cpp' ;;
+    *.cs)           append '*.cs text diff=csharp' ;;
+    *.cshtml)       append '*.cshtml text diff=html' ;;
+    *.csproj)       append '*.csproj text eol=crlf' ;;
+    *.css)          append '*.css text diff=css' ;;
+    *.csv)          append '*.csv text eol=crlf' ;;
+    *.csx)          append '*.csx text diff=csharp' ;;
+    *.cxx)          append '*.cxx text diff=cpp' ;;
+    *.d)            append '*.d text' ;;
+    *.dart)         append '*.dart text' ;;
+    *.db)           append '*.db binary' ;;
+    *.dbf)          append '*.dbf binary' ;;
+    *.df)           append '*.df text' ;;
+    *.dfm)          append '*.dfm text' ;;
+    *.dll)          append '*.dll binary' ;;
+    *.doc)          append '*.doc binary' ;;
+    *.docx)         append '*.docx binary' ;;
+    *.dof)          append '*.dof text' ;;
+    *.dot)          append '*.dot text' ;;
+    *.dsk)          append '*.dsk binary' ;;
+    *.dtd)          append '*.dtd text' ;;
+    *.dylib)        append '*.dylib binary' ;;
+    *.ear)          append '*.ear binary' ;;
+    *.ejs)          append '*.ejs text' ;;
+    *.eot)          append '*.eot binary' ;;
+    *.eps)          append '*.eps binary' ;;
+    *.epub)         append '*.epub binary' ;;
+    *.erb)          append '*.erb text' ;;
+    *.ex)           append '*.ex diff=elixir' ;;
+    *.exe)          append '*.exe binary' ;;
+    *.exs)          append '*.exs diff=elixir' ;;
+    *.f)            append '*.f text diff=fortran' ;;
+    *.f03)          append '*.f03 text diff=fortran' ;;
+    *.f90)          append '*.f90 text diff=fortran' ;;
+    *.f95)          append '*.f95 text diff=fortran' ;;
+    *.fdx)          append '*.fdx text' ;;
+    *.fig)          append '*.fig binary' ;;
+    *.fish)         append '*.fish text eol=lf' ;;
+    *.fla)          append '*.fla binary' ;;
+    *.flv)          append '*.flv binary' ;;
+    *.for)          append '*.for text diff=fortran' ;;
+    *.fountain)     append '*.fountain text diff=fountain' ;;
+    *.fs)           append '*.fs text diff=fsharp' ;;
+    *.fsproj)       append '*.fsproj text eol=crlf' ;;
+    *.fsx)          append '*.fsx text diff=fsharp' ;;
+    *.gch)          append '*.gch binary' ;;
+    *.gif)          append '*.gif binary' ;;
+    *.gifv)         append '*.gifv binary' ;;
+    *.go)           append '*.go -text diff=golang' ;;
+    *.gradle)       append '*.gradle text diff=java' ;;
+    *.gradle.kts)   append '*.gradle.kts text diff=kotlin' ;;
+    *.groovy)       append '*.groovy text diff=java' ;;
+    *.gz)           append '*.gz binary' ;;
+    *.h)            append '*.h text diff=cpp' ;;
+    *.h++)          append '*.h++ text diff=cpp' ;;
+    *.haml)         append '*.haml text' ;;
+    *.handlebars)   append '*.handlebars text' ;;
+    *.hbs)          append '*.hbs text' ;;
+    *.hbt)          append '*.hbt text' ;;
+    *.hh)           append '*.hh text diff=cpp' ;;
+    *.hlp)          append '*.hlp binary' ;;
+    *.hpp)          append '*.hpp text diff=cpp' ;;
+    *.htm)          append '*.htm text diff=html' ;;
+    *.html)         append '*.html text diff=html' ;;
+    *.ico)          append '*.ico binary' ;;
+    *.inc)          append '*.inc text' ;;
+    *.ini)          append '*.ini text' ;;
+    *.ipynb)        append '*.ipynb text eol=lf' ;;
+    *.jade)         append '*.jade text' ;;
+    *.jar)          append '*.jar binary' ;;
+    *.java)         append '*.java text diff=java' ;;
+    *.jks)          append '*.jks binary' ;;
+    *.jng)          append '*.jng binary' ;;
+    *.jp2)          append '*.jp2 binary' ;;
+    *.jpeg)         append '*.jpeg binary' ;;
+    *.jpg)          append '*.jpg binary' ;;
+    *.jpx)          append '*.jpx binary' ;;
+    *.js)           append '*.js text' ;;
+    *.jsfl)         append '*.jsfl text' ;;
+    *.json)         append '*.json text' ;;
+    *.jsp)          append '*.jsp text' ;;
+    *.jspf)         append '*.jspf text' ;;
+    *.jspx)         append '*.jspx text' ;;
+    *.jsx)          append '*.jsx text' ;;
+    *.jxr)          append '*.jxr binary' ;;
+    *.kak)          append '*.kak text eol=lf' ;;
+    *.kar)          append '*.kar binary' ;;
+    *.kt)           append '*.kt text diff=kotlin' ;;
+    *.la)           append '*.la binary' ;;
+    *.lai)          append '*.lai binary' ;;
+    *.latte)        append '*.latte text' ;;
+    *.less)         append '*.less text' ;;
+    *.lfm)          append '*.lfm text' ;;
+    *.lib)          append '*.lib binary' ;;
+    *.lo)           append '*.lo binary' ;;
+    *.lock)         append '*.lock text -diff' ;;
+    *.lpi)          append '*.lpi text' ;;
+    *.lpk)          append '*.lpk text' ;;
+    *.lpr)          append '*.lpr text' ;;
+    *.lps)          append '*.lps text' ;;
+    *.lrs)          append '*.lrs text' ;;
+    *.lrt)          append '*.lrt text' ;;
+    *.ls)           append '*.ls text' ;;
+    *.lua)          append '*.lua text' ;;
+    *.m)            append '*.m text diff=objc' ;;
+    *.m4a)          append '*.m4a binary' ;;
+    *.m4v)          append '*.m4v binary' ;;
+    *.map)          append '*.map text -diff' ;;
+    *.markdown)     append '*.markdown text diff=markdown' ;;
+    *.mat)          append '*.mat binary' ;;
+    *.mcf)          append '*.mcf text eol=crlf' ;;
+    *.md)           append '*.md text diff=markdown' ;;
+    *.mdl)          append '*.mdl binary' ;;
+    *.mdlp)         append '*.mdlp binary' ;;
+    *.mdown)        append '*.mdown text diff=markdown' ;;
+    *.mdtext)       append '*.mdtext text' ;;
+    *.mdtxt)        append '*.mdtxt text' ;;
+    *.mdwn)         append '*.mdwn text diff=markdown' ;;
+    *.mdx)          append '*.mdx text diff=markdown' ;;
+    *.mex*)         append '*.mex* binary' ;;
+    *.mid)          append '*.mid binary' ;;
+    *.midi)         append '*.midi binary' ;;
+    *.mkd)          append '*.mkd text diff=markdown' ;;
+    *.mkdn)         append '*.mkdn text diff=markdown' ;;
+    *.mlappinstall) append '*.mlappinstall binary' ;;
+    *.mlpkginstall) append '*.mlpkginstall binary' ;;
+    *.mltbx)        append '*.mltbx binary' ;;
+    *.mn)           append '*.mn binary' ;;
+    *.mng)          append '*.mng binary' ;;
+    *.mov)          append '*.mov binary' ;;
+    *.mp3)          append '*.mp3 binary' ;;
+    *.mp4)          append '*.mp4 binary' ;;
+    *.mpeg)         append '*.mpeg binary' ;;
+    *.mpg)          append '*.mpg binary' ;;
+    *.msh)          append '*.msh text eol=crlf' ;;
+    *.msh1)         append '*.msh1 text eol=crlf' ;;
+    *.msh1xml)      append '*.msh1xml text eol=crlf' ;;
+    *.msh2)         append '*.msh2 text eol=crlf' ;;
+    *.msh2xml)      append '*.msh2xml text eol=crlf' ;;
+    *.mshxml)       append '*.mshxml text eol=crlf' ;;
+    *.mt)           append '*.mt text diff=mathematica' ;;
+    *.mu)           append '*.mu text diff=matlab' ;;
+    *.mustache)     append '*.mustache text' ;;
+    *.mx)           append '*.mx binary' ;;
+    *.nb)           append '*.nb text diff=mathematica' ;;
+    *.njk)          append '*.njk text' ;;
+    *.o)            append '*.o binary' ;;
+    *.obj)          append '*.obj binary' ;;
+    *.od)           append '*.od text' ;;
+    *.ods)          append '*.ods binary' ;;
+    *.odt)          append '*.odt text' ;;
+    *.ogg)          append '*.ogg binary' ;;
+    *.ogv)          append '*.ogv binary' ;;
+    *.onlydata)     append '*.onlydata text' ;;
+    *.or)           append '*.or text' ;;
+    *.otf)          append '*.otf binary' ;;
+    *.out)          append '*.out binary' ;;
+    *.p)            append '*.p binary' ;;
+    *.pas)          append '*.pas text diff=pascal' ;;
+    *.patch)        append '*.patch -text' ;;
+    *.pbm)          append '*.pbm binary' ;;
+    *.pbxproj)      append '*.pbxproj merge=union' ;;
+    *.pch)          append '*.pch binary' ;;
+    *.pdf)          append '*.pdf binary' ;;
+    *.pgm)          append '*.pgm binary' ;;
+    *.php)          append '*.php text diff=php' ;;
+    *.phtml)        append '*.phtml text' ;;
+    *.pickle)       append '*.pickle binary' ;;
+    *.pkl)          append '*.pkl binary' ;;
+    *.pl)           append '*.pl text diff=perl' ;;
+    *.pm)           append '*.pm text diff=perl' ;;
+    *.png)          append '*.png binary' ;;
+    *.po)           append '*.po binary' ;;
+    *.pp)           append '*.pp text diff=pascal' ;;
+    *.ppm)          append '*.ppm binary' ;;
+    *.ppu)          append '*.ppu binary' ;;
+    *.properties)   append '*.properties text' ;;
+    *.props)        append '*.props text eol=crlf' ;;
+    *.props.tmpl)   append '*.props.tmpl text eol=crlf' ;;
+    *.ps)           append '*.ps text' ;;
+    *.ps1)          append '*.ps1 text eol=crlf' ;;
+    *.ps1x)         append '*.ps1x text eol=crlf' ;;
+    *.ps1xml)       append '*.ps1xml text eol=crlf' ;;
+    *.psb)          append '*.psb binary' ;;
+    *.psd)          append '*.psd binary' ;;
+    *.psd1)         append '*.psd1 text eol=crlf' ;;
+    *.psm1)         append '*.psm1 text eol=crlf' ;;
+    *.psrc)         append '*.psrc text eol=crlf' ;;
+    *.pssc)         append '*.pssc text eol=crlf' ;;
+    *.pxd)          append '*.pxd text diff=python' ;;
+    *.py)           append '*.py text diff=python' ;;
+    *.py3)          append '*.py3 text diff=python' ;;
+    *.pyc)          append '*.pyc binary export-ignore' ;;
+    *.pyd)          append '*.pyd binary' ;;
+    *.pyi)          append '*.pyi text diff=python' ;;
+    *.pyo)          append '*.pyo binary export-ignore' ;;
+    *.pyw)          append '*.pyw text diff=python' ;;
+    *.pyx)          append '*.pyx text diff=python' ;;
+    *.pyz)          append '*.pyz text diff=python' ;;
+    *.ra)           append '*.ra binary' ;;
+    *.rar)          append '*.rar binary' ;;
+    *.rb)           append '*.rb text diff=ruby' ;;
+    *.rc)           append '*.rc text' ;;
+    *.rda)          append '*.rda binary' ;;
+    *.rdb)          append '*.rdb binary' ;;
+    *.rds)          append '*.rds binary' ;;
+    *.res)          append '*.res text' ;;
+    *.rs)           append '*.rs text diff=rust' ;;
+    *.rsj)          append '*.rsj text' ;;
+    *.rst)          append '*.rst text' ;;
+    *.rtf)          append '*.rtf binary' ;;
+    *.sass)         append '*.sass text' ;;
+    *.scala)        append '*.scala text diff=java' ;;
+    *.scm)          append '*.scm text' ;;
+    *.scss)         append '*.scss text diff=css' ;;
+    *.sh)           append '*.sh text eol=lf' ;;
+    *.sldd)         append '*.sldd binary' ;;
+    *.sln)          append '*.sln text eol=crlf' ;;
+    *.sln.tmpl)     append '*.sln.tmpl text eol=crlf' ;;
+    *.slo)          append '*.slo binary' ;;
+    *.slx)          append '*.slx binary' ;;
+    *.slxp)         append '*.slxp binary' ;;
+    *.so)           append '*.so binary' ;;
+    *.sql)          append '*.sql text' ;;
+    *.styl)         append '*.styl text' ;;
+    *.svelte)       append '*.svelte text' ;;
+    *.svg)          append '*.svg text' ;;
+    *.svgz)         append '*.svgz binary' ;;
+    *.swc)          append '*.swc binary' ;;
+    *.swf)          append '*.swf binary' ;;
+    *.swift)        append '*.swift text diff=swift' ;;
+    *.tab)          append '*.tab text' ;;
+    *.tag)          append '*.tag text' ;;
+    *.tagx)         append '*.tagx text' ;;
+    *.tar)          append '*.tar binary' ;;
+    *.tex)          append '*.tex text diff=tex' ;;
+    *.textile)      append '*.textile text' ;;
+    *.tgz)          append '*.tgz binary' ;;
+    *.tif)          append '*.tif binary' ;;
+    *.tiff)         append '*.tiff binary' ;;
+    *.tld)          append '*.tld text' ;;
+    *.tmpl)         append '*.tmpl text' ;;
+    *.toml)         append '*.toml text diff=toml' ;;
+    *.tpl)          append '*.tpl text' ;;
+    *.ts)           append '*.ts text' ;;
+    *.tsv)          append '*.tsv text' ;;
+    *.tsx)          append '*.tsx text' ;;
+    *.ttf)          append '*.ttf binary' ;;
+    *.twig)         append '*.twig text' ;;
+    *.txt)          append '*.txt text' ;;
+    *.vim)          append '*.vim text eol=lf' ;;
+    *.vue)          append '*.vue text' ;;
+    *.war)          append '*.war binary' ;;
+    *.wbmp)         append '*.wbmp binary' ;;
+    *.webm)         append '*.webm binary' ;;
+    *.webp)         append '*.webp binary' ;;
+    *.wl)           append '*.wl text diff=mathematica' ;;
+    *.wls)          append '*.wls text diff=mathematica' ;;
+    *.wlt)          append '*.wlt text diff=mathematica' ;;
+    *.woff)         append '*.woff binary' ;;
+    *.woff2)        append '*.woff2 binary' ;;
+    *.xhtml)        append '*.xhtml text diff=html' ;;
+    *.xls)          append '*.xls binary' ;;
+    *.xlsx)         append '*.xlsx binary' ;;
+    *.xml)          append '*.xml text' ;;
+    *.xpm)          append '*.xpm binary' ;;
+    *.xsd)          append '*.xsd text' ;;
+    *.xsl)          append '*.xsl text' ;;
+    *.yaml)         append '*.yaml text' ;;
+    *.yml)          append '*.yml text' ;;
+    *.zip)          append '*.zip binary' ;;
+    *.zsh)          append '*.zsh text eol=lf' ;;
+
+    # file extension ends with...
+
+    *.*ignore) append '*.*ignore text' ;;
+    *.*rc)     append '*.*rc text' ;;
+
+    # file name contains...
+
+    *COPYRIGHT*) append '*COPYRIGHT* text' ;;
+    *README*)    append '*README* text' ;;
+
+
+    *) case "$p" in
+      # path starts with...
+
+      .husky/*) append '.husky/* text eol=lf' ;;
+      dist/*) append 'dist/* binary' ;;
+
+      # path contains...
+
+      */.yarn/plugins/*)  append '**/.yarn/plugins/** binary' ;;
+      */.yarn/releases/*) append '**/.yarn/releases/** binary' ;;
+
+      # no matches for file or path
+      *) echo "no attribute found: $p" >&2; missing=$((missing + 1)) ;;
+    esac
+  esac
+done <<EOF
+$(git ls-files ${untracked:+--others --exclude-standard})
+EOF
+
+if test "$missing" -ne 0; then
+  test "$missing" -ge 255 && missing=255
+  exit "$missing"
+fi

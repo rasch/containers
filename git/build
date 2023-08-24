@@ -1,0 +1,54 @@
+#!/bin/sh
+
+container=$(buildah from --pull alpine:edge)
+
+trap 'buildah rm "$container"' EXIT INT TERM
+
+buildah run "$container" -- \
+  apk add --no-cache \
+    dropbear-dbclient \
+    dropbear-scp \
+    dropbear-ssh \
+    git \
+    gnupg \
+    jq \
+    less \
+    rsync
+
+buildah copy "$container" config /root
+buildah copy "$container" scripts /usr/local/bin
+
+buildah run "$container" -- sh <<'EOF'
+chmod 2700 /root/.ssh /root/.gnupg
+chmod 600 /root/.ssh/* /root/.gnupg/*
+EOF
+
+buildah run "$container" -- \
+  wget -qO /root/.gitmoji \
+    https://raw.githubusercontent.com/carloscuesta/gitmoji/master/packages/gitmojis/src/gitmojis.json
+
+buildah run "$container" -- \
+  wget -qO /root/.config/git/gitalias \
+    https://raw.githubusercontent.com/GitAlias/gitalias/main/gitalias.txt
+
+buildah run "$container" -- \
+  git hooks
+
+buildah config \
+  --cmd '[]' \
+  --entrypoint '["entrypoint.sh", "git"]' \
+  "$container"
+
+for i in git gpg rsync; do
+  if ! buildah run -t "$container" -- $i --version; then
+    printf 'ERROR: %s not installed\n' "$i" >&2
+    exit 1
+  fi
+done
+
+if ! buildah run -t "$container" -- ssh -V; then
+  printf 'ERROR: ssh/dbclient not installed\n' >&2
+  exit 1
+fi
+
+buildah commit "$container" git

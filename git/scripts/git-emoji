@@ -1,0 +1,15 @@
+#!/bin/sh
+
+if test "$1" = '-h'; then
+  echo "Usage: git emoji [regex]"
+  exit
+fi
+
+command -p jq --version >/dev/null 2>&1 || \
+  { echo "'jq' is required but not found. aborting." >&2; exit 1; }
+
+cache="$HOME"/.gitmoji
+format='\(.emoji) \(.description) [\(.semver)] \(.code)'
+filter=".gitmojis | map(\"$format\") | join(\"\n\")"
+
+test -f "$cache" && jq -r "$filter" "$cache" | grep -iE -- "$1"

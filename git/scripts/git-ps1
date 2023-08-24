@@ -1,0 +1,107 @@
+#!/bin/sh
+
+# branch="$(git symbolic-ref --short HEAD 2>/dev/null)"
+branch="$(git rev-parse --abbrev-ref --symbolic-full-name HEAD 2>/dev/null)"
+
+# return early if not in a git repository
+test -z "$branch" && return
+
+# $1:is-inside-git-dir; $2:is-bare-repository; $3:short-hash
+# shellcheck disable=SC2046
+set $(git rev-parse --is-inside-git-dir --is-bare-repository \
+  --short HEAD 2>/dev/null)
+
+# symbols
+modified="*"
+staged="+"
+stashed="$"
+untracked="?"
+ahead=">"
+behind="<"
+left=" ("
+separator="  "
+right=")"
+
+# colors
+modified_color="\033[35m"
+staged_color="\033[32m"
+stashed_color="\033[34m"
+untracked_color="\033[34m"
+ahead_color="\033[33m"
+behind_color="\033[33m"
+left_color="\033[90m"
+separator_color="\033[90m"
+right_color="\033[90m"
+branch_color="\033[33m"
+hash_color="\033[33m"
+reset_color="\033[0m"
+warn_color="\033[31m"
+
+# start/end delimiters for surrounding non-printable characters
+A="\["
+B="\]"
+
+# bash requires octal escapes for surrounding non-printable characters
+# https://wiki.archlinux.org/index.php/Bash/Prompt_customization#Embedding_commands
+if test -n "$BASH_VERSION"; then
+  A="\001"
+  B="\002"
+fi
+
+# helper function to append an ansi color escape & text to $prompt
+p () {
+  printf "%s%b%b%b%s%b%b%b" \
+    "$prompt" "$A" "$1" "$B" "$2" "$A" "$reset_color" "$B"
+}
+
+# initialize the git prompt
+prompt="$(p "$left_color" "$left")"
+
+# set prompt when inside git directory
+if test "$1" = "true"; then
+  # bare repository
+  test "$2" = "true" && \
+    prompt="$(p "$warn_color" "BARE:$branch")" || \
+    prompt="$(p "$warn_color" "GIT_DIR!")"
+
+# set prompt when inside git work tree
+else
+  # don't show git prompt inside ignored directories
+  git check-ignore --quiet . 2>/dev/null && return
+
+  prompt="$(p "$branch_color" "$branch")"
+  prompt="$(p "$separator_color" "$separator")"
+  prompt="$(p "$hash_color" "$3 ")"
+
+  # modified files
+  git diff --quiet 2>/dev/null || \
+    prompt="$(p "$modified_color" "$modified")"
+
+  # staged files
+  git diff --quiet --cached 2>/dev/null || \
+    prompt="$(p "$staged_color" "$staged")"
+
+  # stashed files
+  git rev-parse --quiet --verify refs/stash >/dev/null 2>&1 && \
+    prompt="$(p "$stashed_color" "$stashed")"
+
+  # untracked files
+  git ls-files --others --exclude-standard --error-unmatch -- ':/*' \
+    >/dev/null 2>&1 && \
+    prompt="$(p "$untracked_color" "$untracked")"
+
+  # upstream
+  count="$(git rev-list --count --left-right @\{upstream\}...HEAD 2>/dev/null)"
+  if test -n "$count"; then
+    # shellcheck disable=SC2086
+    set $count
+    test "$1" -ne 0 && prompt="$(p "$behind_color" "$behind")"
+    test "$2" -ne 0 && prompt="$(p "$ahead_color" "$ahead")"
+  fi
+fi
+
+# close the git prompt
+prompt="$(p "$right_color" "$right")"
+
+# the git ps1
+printf "%s" "$prompt"

@@ -1,0 +1,96 @@
+[advice]
+  statusHints = false
+
+[blame]
+  coloring = highlightRecent
+
+[branch]
+  autoSetupMerge = always
+  autoSetupRebase = always
+
+[color "blame"]
+  highlightRecent = blue,12 months ago,cyan,1 month ago,magenta,2 weeks ago,red
+
+[color "branch"]
+  current = blue reverse
+  local = blue
+  remote = magenta
+  upstream = magenta
+  plain = normal
+
+[color "diff"]
+   context = normal
+   meta = normal bold
+   frag = cyan
+   func = normal
+   old = red
+   new = green
+   commit = yellow
+   whitespace = red reverse
+
+[color "decorate"]
+  branch = blue
+  remoteBranch = magenta
+  tag = cyan
+  stash = green
+  HEAD = cyan
+  grafted = red
+
+[color "grep"]
+  filename = magenta
+  linenumber = green
+  match = bold red
+
+[color "status"]
+  header = normal
+  added = green
+  changed = magenta
+  untracked = blue
+  branch = yellow reverse
+  nobranch = red
+  localbranch = yellow
+  remotebranch = yellow
+  unmerged = red
+
+[commit]
+  gpgSign = true
+
+[core]
+  autocrlf = input
+
+[fetch]
+  fsckObjects = true
+
+[grep]
+  lineNumber = true
+
+[init]
+  defaultBranch = main
+
+[pull]
+  rebase = merges
+
+[push]
+  default = current
+  followTags = true
+
+[rebase]
+  autoSquash = true
+
+[receive]
+  denyNonFastForwards = true
+  denyDeletes = true
+  fsckObjects = true
+
+[rerere]
+  enabled = true
+
+[status]
+  showStash = true
+
+[tag]
+  gpgSign = true
+
+[include]
+  path = alias
+  path = gitalias
