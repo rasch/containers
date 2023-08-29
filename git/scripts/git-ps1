@@ -120,7 +120,11 @@ fi
 
 branch=$(git rev-parse --abbrev-ref --symbolic-full-name HEAD 2>/dev/null)
 
-p "$branch" "$branch_color"
+# get branch name if rebase in progress
+v "$g/rebase-merge/head-name" branch
+v "$g/rebase-apply/head-name" branch
+
+p "${branch##refs/heads/}" "$branch_color"
 p "$branch_separator" "$separator_color"
 p "$short_sha" "$hash_color"
 
