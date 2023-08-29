@@ -126,7 +126,7 @@ v "$g/rebase-apply/head-name" branch
 
 p "${branch##refs/heads/}" "$branch_color"
 p "$branch_separator" "$separator_color"
-p "$short_sha" "$hash_color"
+p "${short_sha:-no commits}" "$warn_color${short_sha:+$hash_color}"
 
 if test "$is_shallow_repository" = true; then
   p "$separator" "$separator_color"
