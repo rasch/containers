@@ -16,34 +16,36 @@
 #
 #                                  FEATURES
 #
-#  ([gitdir]<branch>  <shasum>[|status]...[fstatus][upstream])
+#  ([gitdir]<branch>  <shasum>[status]...[fstatus][upstream])
 #
-#  - gitdir:   only displays when the current working directory is the .git
+#  - gitdir:   Only displays when the current working directory is the .git
 #              directory. 'GIT_DIR! ' or 'BARE:'
 #
-#  - branch:   the current checked out branch or 'HEAD' when detached.
+#  - branch:   The current checked out branch or 'HEAD' when detached.
 #
-#  - shasum:   the short sha sum of the current checkout.
+#  - shasum:   The short sha sum of the current checkout or 'no commits' if
+#              hash is empty.
 #
-#  - status:   the current status(es) of the repository. The REBASE and AM
+#  - status:   The current status(es) of the repository. The REBASE and AM
 #              actions also display the number of steps as ' current/total'.
-#              SHALLOW   SPARSE   REBASE   AM   AM/REBASE   MERGING
-#              CHERRY-PICKING   REVERTING   BISECTING   CONFLICT
+#              |SHALLOW  |SPARSE  |REBASE  |AM  |AM/REBASE  |MERGING
+#              |CHERRY-PICKING  |REVERTING  |BISECTING  |CONFLICT
 #
-#  - fstatus:  the current status(es) of the file(s) in repository.
-#              modified *   staged +   stashed $   untracked ?
+#  - fstatus:  The current status(es) of the file(s) in repository.
+#              modified (*)  staged (+)  stashed ($)  untracked (?)
 #
-#  - upstream: the difference between HEAD and upstream.
-#              behind <   ahead >   diverged <>
+#  - upstream: The difference between HEAD and upstream.
+#              behind (<)  ahead (>)  diverged (<)(>)
 #
 #                                  EXAMPLES
 #
 #  (main  9bcc00e)
-#  (main  9bcc00e*?>)
-#  (main  9bcc00e|MERGING|CONFLICT*+)
+#  (main  9bcc00e(*)(?)(>))
+#  (main  9bcc00e|MERGING|CONFLICT(*)(+))
 #  (GIT_DIR! main  9bcc00e|MERGING|CONFLICT)
 #  (BARE:main  de08ff3)
-#  (new  9bcc00e|REBASE 1/3)
+#  (new  9bcc00e|REBASE 1/3|CONFLICT($))
+#
 # ----------------------------------------------------------------------------
 
 info=$(git rev-parse \
