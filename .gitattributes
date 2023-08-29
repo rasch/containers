@@ -1,0 +1,39 @@
+* text=auto
+
+.editorconfig text
+.env text
+.gitattributes text export-ignore
+.gitignore text export-ignore
+Dockerfile text
+LICENSE text
+
+*.adb text diff=ada
+*.c text diff=cpp
+*.cc text diff=cpp
+*.conf text
+*.css text diff=css
+*.d text
+*.f90 text diff=fortran
+*.go -text diff=golang
+*.h text diff=cpp
+*.js text
+*.json text
+*.kak text eol=lf
+*.lua text
+*.m text diff=objc
+*.md text diff=markdown
+*.patch -text
+*.rs text diff=rust
+*.sh text eol=lf
+*.toml text diff=toml
+*.vim text eol=lf
+*.yaml text
+*.yml text
+*.*ignore text
+*.*rc text
+
+xpod text eol=lf
+**/bin/* text eol=lf
+**/build text eol=lf
+**/scripts/* text eol=lf
+*/config/** text eol=lf
