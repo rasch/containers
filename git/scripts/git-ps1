@@ -146,14 +146,12 @@ if test -d "$g/rebase-merge"; then
 elif test -d "$g/rebase-apply"; then
   v "$g/rebase-apply/next" current
   v "$g/rebase-apply/last" total
+  p "$separator" "$separator_color"
   if test -f "$g/rebase-apply/rebasing"; then
-    p "$separator" "$separator_color"
     p 'REBASE' "$info_color"
   elif test -f "$g/rebase-apply/applying"; then
-    p "$separator" "$separator_color"
     p 'AM' "$info_color"
   else
-    p "$separator" "$separator_color"
     p 'AM/REBASE' "$info_color"
   fi
 elif test -f "$g/MERGE_HEAD"; then
