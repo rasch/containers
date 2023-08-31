@@ -89,9 +89,9 @@ cmd() {
 
 if test -f "$1"; then
   cmd < "$1"
-elif test -p /dev/stdin; then
+elif ! test -t 0; then
   cmd
 else
-  printf 'ERROR: %s requires an existing file or a heredoc (stdin)\n' "$app"
+  printf 'ERROR: %s requires an existing file or stdin/heredoc\n' "$app"
   exit 1
 fi
