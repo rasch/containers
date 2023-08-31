@@ -5,7 +5,7 @@
 IMAPStore zoho-remote
 Host imap.zoho.com
 Port 993
-UserCmd "echo \"${ZOHO_EMAIL:-EMAIL}\""
+UserCmd "echo \"${ZOHO_EMAIL:-$EMAIL}\""
 PassCmd "+gpg -q --for-your-eyes-only --no-tty -d /root/mail/.zoho.asc"
 SSLType IMAPS
 SSLVersions TLSv1.2
@@ -34,7 +34,7 @@ SyncState *
 IMAPStore gmail-remote
 Host imap.gmail.com
 Port 993
-UserCmd "echo \"${GMAIL_EMAIL:-EMAIL}\""
+UserCmd "echo \"${GMAIL_EMAIL:-$EMAIL}\""
 PassCmd "+gpg -q --for-your-eyes-only --no-tty -d /root/mail/.gmail.asc"
 SSLType IMAPS
 SSLVersions TLSv1.2
@@ -63,7 +63,7 @@ SyncState *
 IMAPStore riseup-remote
 Host mail.riseup.net
 Port 993
-UserCmd "echo \"${RISEUP_EMAIL:-EMAIL}\""
+UserCmd "echo \"${RISEUP_EMAIL:-$EMAIL}\""
 PassCmd "+gpg -q --for-your-eyes-only --no-tty -d /root/mail/.riseup.asc"
 SSLType IMAPS
 SSLVersions TLSv1.2
