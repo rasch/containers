@@ -12,7 +12,8 @@ buildah run "$container" -- \
     mblaze \
     mblaze-crypto \
     notmuch \
-    openssl
+    openssl \
+    s-nail
 
 buildah copy "$container" config /root
 buildah copy "$container" scripts /usr/local/bin
@@ -23,7 +24,7 @@ buildah config \
   --env MBLAZE=/root/mail/.mblaze \
   "$container"
 
-for i in gpg mbsync notmuch
+for i in gpg mbsync notmuch mail
 do
   if ! buildah run -t "$container" -- "$i" --version >/dev/null
   then

@@ -84,6 +84,7 @@ buildah run "$container" -- \
     ruby-doc \
     shellcheck-doc \
     sl-doc \
+    s-nail-doc \
     socat-doc \
     stellarium-doc \
     tmux-doc \

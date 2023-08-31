@@ -1,0 +1,178 @@
+# ----------------------------------------
+#                Settings
+# ----------------------------------------
+
+set v15-compat=yes
+set append
+set asksend
+set autosort=thread
+set crt=
+set datefield='%a %b %e'
+set datefield-markout-older='%Y-%m-%d'
+set dot
+set editalong
+set editheaders
+set emptystart
+set followup-to
+set followup-to-honour=ask-yes
+set fullnames
+set header
+set headline='%>%a %m %10d  %-17f  %i%-s'
+set history-gabby=all
+set hold
+set imap-auth=login
+set imap-keepalive=240
+set imap-use-starttls
+set indentprefix='> '
+set keep
+set keepsave
+set markanswered
+set mime-counter-evidence=0b1111
+set mimetypes-load-control
+set newfolders=maildir
+set quiet
+set quote
+set recipients-in-cc
+set record-files
+set record-resent
+set reply-in-same-charset
+set reply-to-honour=ask-yes
+set searchheaders
+set sendcharsets=utf-8,iso-8859-1
+set sendwait
+set showname
+set showto
+set skipemptybody
+set smtp-auth=login
+set smtp-use-starttls
+set tls-ca-file=/etc/ssl/certs/ca-certificates.crt
+set tls-ca-no-defaults
+set tls-config-pairs='\
+    CipherString=TLSv1.2:!aNULL:!eNULL:@STRENGTH,\
+    Curves=P-521:P-384:P-256,\
+    MinProtocol=TLSv1.2'
+set tls-verify=strict
+set smime-ca-file="$tls-ca-file"
+set smime-ca-no-defaults
+
+# ----------------------------------------
+#                 Colors
+# ----------------------------------------
+
+if terminal && "$features" =% ,+colour,
+  set colour-pager
+
+  colour 256 mle-position fg=8
+  colour 256 mle-prompt fg=8
+  colour 256 mle-error fg=1
+
+  colour 256 sum-dotmark ft=bold,fg=4
+  colour 256 sum-header fg=7
+  colour 256 sum-header ft=bold,fg=4 dot
+  colour 256 sum-header fg=7 older
+  colour 256 sum-thread fg=6
+  colour 256 sum-thread bg=6 dot
+  colour 256 sum-thread bg=6 older
+
+  colour 256 view-header fg=8
+  colour 256 view-header fg=4 'date,subject,from,to'
+  colour 256 view-msginfo fg=6
+  colour 256 view-partinfo fg=2
+endif
+
+# ----------------------------------------
+#                 Prompt
+# ----------------------------------------
+
+if -N headline-plain
+  set prompt='\$?? \$!! \$mailbox-display > '
+else
+  set prompt='\$?? \$!! \$mailbox-display \xe2\x9d\xaf '
+endif
+
+# ----------------------------------------
+#                 Macros
+# ----------------------------------------
+
+define html {
+  localopts yes
+  set mime-alternative-favour-rich pipe-text/html=?h?
+  type "$@"
+}
+
+define trash {
+  if "$account" == gmail
+    move "$@" "+[Gmail]/Trash"
+  else
+    move "$@" +Trash
+  endif
+}
+
+# ----------------------------------------
+#                Aliases
+# ----------------------------------------
+
+commandalias html call html
+commandalias ls !ls --color=auto -AFhl
+commandalias trash call trash
+
+# ----------------------------------------
+#           Directories/Files
+# ----------------------------------------
+
+set folder=/root/mail/local
+set history-file=/root/mail/.s-nailhist
+set inbox=+Inbox
+set record=/root/mail/local/Sent
+set DEAD=/root/mail/dead.letter
+
+# ----------------------------------------
+#              Credentials
+# ----------------------------------------
+
+if -N NAME && -N EMAIL
+  set from="$NAME <$EMAIL>"
+endif
+
+set netrc-lookup
+set netrc-pipe='gpg -q --for-your-eyes-only --no-tty -d /root/mail/.netrc.asc'
+
+# ----------------------------------------
+#               Accounts
+# ----------------------------------------
+
+account zoho {
+  localopts yes
+  set mta=smtps://smtp.zoho.com:465
+  set folder=imaps://imap.zoho.com:993
+
+  if -N NAME && -N ZOHO_EMAIL
+    set from="$NAME <$ZOHO_EMAIL>"
+  endif
+}
+
+account gmail {
+  localopts yes
+  set mta=smtps://smtp.gmail.com:465
+  set folder=imaps://imap.gmail.com:993
+
+  if -N NAME && -N GMAIL_EMAIL
+    set from="$NAME <$GMAIL_EMAIL>"
+  endif
+}
+
+account riseup {
+  localopts yes
+  set mta=smtps://mail.riseup.net:465
+  set folder=imaps://mail.riseup.net:993
+
+  if -N NAME && -N RISEUP_EMAIL
+    set from="$NAME <$RISEUP_EMAIL>"
+  endif
+}
+
+# ----------------------------------------
+#               MoarConfig
+# ----------------------------------------
+
+source_if /root/mail/.mailrc
