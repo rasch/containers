@@ -1,3 +1,8 @@
-# An empty configuration file for notmuch. Environment variables (NAME & EMAIL)
-# are used for configuration. The mail directory for storing mail and the
-# notmuch database is mounted in the default locatation at "$HOME/mail"
+# user.name - is set using the NAME environment variable
+# user.primary_email - is set using the EMAIL environment variable
+# database.path - the mail directory (which contains the notmuch database)
+#   is mounted in the default location "$HOME/mail" in the container
+
+[new]
+# ignore dotfiles in the mail directory
+ignore=/^\..*$/;.mbsyncstate;.uidvalidity;
