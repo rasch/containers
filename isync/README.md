@@ -67,6 +67,56 @@ mbsync --push riseup
 mbsync --push --all
 ```
 
+## Read and Manage Email (mblaze)
+
+This is probably a bit different for most people, but `mblaze` is a set of UNIX
+like utilities for managing Maildir folders locally. Learning to use these tools
+is more complex than what will be covered here, but here are a few examples:
+
+Create a sequence file that contains all mail from the ./gmail/Inbox Maildir
+sorted by reverse date (newest first) and display message summaries in pager.
+
+```sh
+mlist ./gmail/Inbox | msort -dr | mseq -S | mscan
+```
+
+Show message number 27 (from `mscan`) in pager.
+
+```sh
+mshow 27
+mless 27  # use :n and :p to go to next and previous messages
+```
+
+Compose and send an email or reply to a message.
+
+```sh
+mcom someone@example.com
+mrep 27
+```
+
+Before using `mblaze`, a configuration file must be created (sorry, I haven't
+found a way to use environment variables here yet). Copy the example below to
+`"$MAILDIR"/.mblaze/profile` and edit the values. Also be sure to create the
+outbox Maildir before composing mail, `mmkdir "$MAILDIR/outbox"`, for example.
+
+```txt
+Local-Mailbox: Quinn Jones <quinn@example.com>
+Alternate-Mailboxes: Quinn Joines <qjones@example.com>, Quinn Jones <qj@example.com>
+FQDN: example.com
+Outbox: /root/mail/outbox
+Scan-Format: %c%u%r %-3n %10d  %17f  %t %2i%s
+Sendmail: send
+Sendmail-Args: gmail
+```
+
+A script, `mblaze`, is included that launches an interactive shell with the
+current working directory set to the mail directory. This is useful when
+processing a lot of mail (because it's a bit faster and caches the gpg
+password).
+
+Check out the man page, `man mblaze`, to see the full list of available tools
+and their options.
+
 ## Send Email (sendmail)
 
 Run `send` with no arguments for detailed usage instructions. The `send` script

@@ -8,6 +8,9 @@ buildah run "$container" -- \
   apk add --no-cache \
     gnupg \
     isync \
+    less \
+    mblaze \
+    mblaze-crypto \
     notmuch \
     openssl
 
@@ -17,6 +20,7 @@ buildah copy "$container" scripts /usr/local/bin
 buildah config \
   --cmd '[]' \
   --entrypoint '["mbsync"]' \
+  --env MBLAZE=/root/mail/.mblaze \
   "$container"
 
 for i in gpg mbsync notmuch

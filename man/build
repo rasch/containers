@@ -63,6 +63,7 @@ buildah run "$container" -- \
     mandoc \
     mandoc-apropos \
     mandoc-doc \
+    mblaze-doc \
     mc-doc \
     mpc-doc \
     mpd-doc \
