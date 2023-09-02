@@ -3,12 +3,12 @@
 app="${0##*/}"
 
 passcmd() {
-  pass="$HOME"/mail/."$1".asc
+  pass="$HOME"/mail/.netrc.asc
 
   test -f "$pass" || \
     { printf 'ERROR: password file not found: %s\n' "$pass" >&2; exit 1; }
 
-  gpg --for-your-eyes-only --no-tty -qd "$pass"
+  gpg --for-your-eyes-only --no-tty -qd "$pass" | grep "$1" | cut -d ' ' -f 6
 }
 
 case "$1" in
@@ -31,17 +31,19 @@ case "$1" in
     pass="$(passcmd "$1")"
     ;;
   *)
-    printf '=== Usage ===
+    # shellcheck disable=SC1039
+    cat <<EOF | sed 's/^ \{4\}//'
+    === Usage ===
 
-    %s <account> <file|stdin>
+    $app <account> <file|stdin>
 
     === Examples ===
 
-    %s zoho draft.eml
+    $app zoho draft.eml
 
     ------
 
-    %s zoho <<EOF
+    $app zoho <<EOF
     To: recipient@example.com
     From: Quinn Jones <quinn@example.com>
     Subject: Subject Text
@@ -51,7 +53,7 @@ case "$1" in
 
     ------
 
-    alias send="%s zoho"
+    alias send='$app zoho'
     send draft.eml
 
     === Notes ===
@@ -62,22 +64,26 @@ case "$1" in
     - The <account> must be one of "zoho", "gmail", or
       "riseup".
 
-    - The <account> requires a password in a gpg encrypted
-      file at "%s/mail/.<account>.asc". The file must only
-      contain the authentication password for the <account>.
+    - The <account> requires a password which is retrieved
+      from a gpg encrypted file at "$HOME/mail/.netrc.asc".
       Most likely it will be an application password set up
       through the email provider (because 2FA **should** be
-      enabled). For example, to configure the password for a
-      zoho account:
+      enabled). For example:
 
-          gpg -ae %s/mail/.zoho
-          shred -zu %s/mail/.zoho
+          cat <<'EOF' >> $HOME/mail/.netrc
+            machine *.gmail.com login USERNAME@DOMAIN password PASSWORD
+            machine *.zoho.com login USERNAME@DOMAIN password PASSWORD
+            machine *.riseup.net login USERNAME password PASSWORD
+          EOF
+
+          gpg -ae $HOME/mail/.netrc
+          shred -zu $HOME/mail/.netrc
 
     - The email address / smtp user is configured by setting
       environment variables: ZOHO_EMAIL, GMAIL_EMAIL and/or
       RISEUP_EMAIL. All of these fallback to using the EMAIL
       environment variable.
-    ' "$app" "$app" "$app" "$app" "$HOME" "$HOME" "$HOME" | sed 's/^ \{4\}//'
+EOF
     exit 1
     ;;
 esac && shift
