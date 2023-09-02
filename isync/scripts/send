@@ -71,9 +71,9 @@ case "$1" in
       enabled). For example:
 
           cat <<'EOF' >> $HOME/mail/.netrc
-            machine *.gmail.com login USERNAME@DOMAIN password PASSWORD
-            machine *.zoho.com login USERNAME@DOMAIN password PASSWORD
-            machine *.riseup.net login USERNAME password PASSWORD
+          machine *.gmail.com login USERNAME@DOMAIN password PASSWORD
+          machine *.zoho.com login USERNAME@DOMAIN password PASSWORD
+          machine *.riseup.net login USERNAME password PASSWORD
           EOF
 
           gpg -ae $HOME/mail/.netrc
