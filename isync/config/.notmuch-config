@@ -4,5 +4,4 @@
 #   is mounted in the default location "$HOME/mail" in the container
 
 [new]
-# ignore dotfiles in the mail directory
-ignore=/^\..*$/;.mbsyncstate;.uidvalidity;
+ignore=.mblaze;.mbsyncstate;.netrc.asc;.s-nailhist;.uidvalidity;dead.letter;
