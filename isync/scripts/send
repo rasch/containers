@@ -98,6 +98,6 @@ if test -f "$1"; then
 elif ! test -t 0; then
   cmd
 else
-  printf 'ERROR: %s requires an existing file or stdin/heredoc\n' "$app"
+  printf 'ERROR: %s requires an existing file or stdin/heredoc\n' "$app" >&2
   exit 1
 fi

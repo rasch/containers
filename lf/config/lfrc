@@ -76,7 +76,7 @@ cmd extract %{{
     *.Z) gzip -d "$f" ;;
     *.rar) bsdtar xf "$f" ;;
     *.7z) 7z x "$f" ;;
-    *) printf 'Unsupported archive format\n' ;;
+    *) printf 'Unsupported archive format\n' >&2 ;;
   esac
 }}
 

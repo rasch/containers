@@ -37,7 +37,7 @@ EOF
 fi
 
 root_path="$(git rev-parse --show-cdup 2>/dev/null)"
-test $? -eq 0 || { printf 'ERROR: not a git repository\n'; exit 1; }
+test $? -eq 0 || { printf 'ERROR: not a git repository\n' >&2; exit 1; }
 
 gitattributes="${root_path:-.}"/.gitattributes
 missing=0

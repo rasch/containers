@@ -3,11 +3,15 @@
 GPG_DIR="${GPG_DIR:-${GNUPGHOME:-$HOME/.config/xpod/gnupg}}"
 MAILDIR="${MAILDIR:-$HOME/.config/xpod/mail}"
 
-test -d "$GPG_DIR" || \
-  { printf 'ERROR: [%s] GPG_DIR path does not exist.\n' "$GPG_DIR"; exit 1; }
+test -d "$GPG_DIR" || {
+  printf 'ERROR: [%s] GPG_DIR path does not exist.\n' "$GPG_DIR" >&2
+  exit 1
+}
 
-test -d "$MAILDIR" || \
-  { printf 'ERROR: [%s] MAILDIR path does not exist.\n' "$MAILDIR"; exit 1; }
+test -d "$MAILDIR" || {
+  printf 'ERROR: [%s] MAILDIR path does not exist.\n' "$MAILDIR" >&2
+  exit 1
+}
 
 xpod -l -- \
   --entrypoint '["mail"]' \

@@ -4,17 +4,25 @@ GPG_DIR="${GPG_DIR:-${GNUPGHOME:-$HOME/.config/xpod/gnupg}}"
 MAILDIR="${MAILDIR:-$HOME/.config/xpod/mail}"
 NAME="${NAME:-${GIT_AUTHOR_NAME:-${GIT_COMMITTER_NAME:-$(whoami)}}}"
 
-test -n "$EMAIL" || \
-  { printf 'ERROR: environment variable EMAIL not set.\n'; exit 1; }
+test -n "$EMAIL" || {
+  printf 'ERROR: environment variable EMAIL not set.\n' >&2
+  exit 1
+}
 
-test -d "$GPG_DIR" || \
-  { printf 'ERROR: [%s] GPG_DIR path does not exist.\n' "$GPG_DIR"; exit 1; }
+test -d "$GPG_DIR" || {
+  printf 'ERROR: [%s] GPG_DIR path does not exist.\n' "$GPG_DIR" >&2
+  exit 1
+}
 
-test -d "$MAILDIR" || \
-  { printf 'ERROR: [%s] MAILDIR path does not exist.\n' "$MAILDIR"; exit 1; }
+test -d "$MAILDIR" || {
+  printf 'ERROR: [%s] MAILDIR path does not exist.\n' "$MAILDIR" >&2
+  exit 1
+}
 
-test -n "$NAME" || \
-  { printf 'ERROR: environment variable NAME not set.\n'; exit 1; }
+test -n "$NAME" || {
+  printf 'ERROR: environment variable NAME not set.\n' >&2
+  exit 1
+}
 
 xpod -Bl -- \
   --env EMAIL \
