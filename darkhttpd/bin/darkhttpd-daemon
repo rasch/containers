@@ -1,0 +1,10 @@
+#!/bin/sh
+
+PORT=${PORT:-3000}
+dir="${1:-.}"
+
+test -n "$1" && shift
+
+xpod -Bdl -- \
+  --publish "$PORT":"$PORT" \
+  darkhttpd "$dir" --port "$PORT" "$@"

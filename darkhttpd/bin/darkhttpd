@@ -1,0 +1,12 @@
+#!/bin/sh
+
+test "$1" = '--help' && { xpod -- darkhttpd --help; exit; }
+
+PORT=${PORT:-3000}
+dir="${1:-.}"
+
+test -n "$1" && shift
+
+xpod -Bl -- \
+  --publish "$PORT":"$PORT" \
+  darkhttpd "$dir" --port "$PORT" "$@"
