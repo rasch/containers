@@ -1,0 +1,17 @@
+#!/bin/sh
+
+MAILDIR="${MAILDIR:-$HOME/.config/xpod/mail}"
+
+test -d "$MAILDIR" || {
+  printf 'ERROR: [%s] MAILDIR path does not exist.\n' "$MAILDIR" >&2
+  exit 1
+}
+
+xpod -tl -- \
+  --entrypoint '["mhdr"]' \
+  --env COLORTERM \
+  --env MBLAZE_PAGER=more \
+  --env TERM \
+  --volume "$MAILDIR":/root/mail \
+  --workdir /root/mail \
+  isync "$@"

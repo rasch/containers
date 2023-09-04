@@ -1,0 +1,12 @@
+#!/bin/sh
+
+if ! test -t 0; then
+  no_tty=true
+fi
+
+xpod -l${no_tty:+i} -- \
+  --entrypoint '["museragent"]' \
+  --env COLORTERM \
+  --env PAGER=more \
+  --env TERM \
+  isync "$@"

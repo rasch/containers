@@ -1,0 +1,34 @@
+#!/bin/sh
+
+GPG_DIR="${GPG_DIR:-${GNUPGHOME:-$HOME/.config/xpod/gnupg}}"
+MAILDIR="${MAILDIR:-$HOME/.config/xpod/mail}"
+
+test -d "$GPG_DIR" || {
+  printf 'ERROR: [%s] GPG_DIR path does not exist.\n' "$GPG_DIR" >&2
+  exit 1
+}
+
+test -d "$MAILDIR" || {
+  printf 'ERROR: [%s] MAILDIR path does not exist.\n' "$MAILDIR" >&2
+  exit 1
+}
+
+if ! test -t 0; then
+  no_tty=true
+fi
+
+xpod -l${no_tty:+i} -- \
+  --entrypoint '["entrypoint.sh", "mbnc"]' \
+  --env COLORTERM \
+  --env EDITOR=vi \
+  --env MBLAZE_PAGER=more \
+  --env TERM \
+  --env NAME \
+  --env EMAIL \
+  --env GMAIL_EMAIL \
+  --env RISEUP_EMAIL \
+  --env ZOHO_EMAIL \
+  --volume "$GPG_DIR":/root/.gnupg \
+  --volume "$MAILDIR":/root/mail \
+  --workdir /root/mail \
+  isync "$@"
