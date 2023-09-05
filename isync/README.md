@@ -162,14 +162,25 @@ mcom someone@example.com
 mrep 27
 ```
 
+The [`mblaze` utilities are all exposed][34] for access outside of the
+container for convenience. Since these utilities are run in a container, a
+pipeline of commands can spawn several containers. This can be a bit slow and
+also a little buggy. The scripts that expose the utilities do a fairly decent
+job of mitigating discrepencies between the `mblaze` manual and how they run in
+containers. The main exception is `minc`. Since it doesn't accept stdin, `xargs`
+must be used to pass stdin as arguments. This does not work at all in the
+container pipeline. To work around this limitation the `minc` script included
+here modifies the entrypoint to run `xargs minc` in the container when stdin is
+detected.
+
 A script, `mblaze`, is included that launches an interactive shell with the
 current working directory set to the mail directory. This is useful when
 processing a lot of mail (because it's a bit faster and caches the gpg
 password).
 
-The `mblaze` script can also be used to pass the entire pipe into the container.
-This is useful because it doesn't spawn a new container for every command in the
-pipeline.
+The `mblaze` script can also be used to pass the entire pipeline into the
+container. This is useful because it doesn't spawn a new container for every
+command in the pipeline.
 
 ```sh
 mblaze -c 'mlist gmail/Inbox | mthread -r -S local/Sent | mseq -S | mscan'
@@ -269,3 +280,4 @@ directory.
 [mblaze]: https://github.com/leahneukirchen/mblaze
 [send]: https://git.sr.ht/~rasch/containers/tree/main/item/isync/scripts/send
 [s-nail]: https://www.sdaoden.eu/code.html
+[34]: https://git.sr.ht/~rasch/containers/commit/9f7bbd559b726e94638f2fba49f1d26c4a9d6b7d
