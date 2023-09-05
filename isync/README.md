@@ -167,6 +167,14 @@ current working directory set to the mail directory. This is useful when
 processing a lot of mail (because it's a bit faster and caches the gpg
 password).
 
+The `mblaze` script can also be used to pass the entire pipe into the container.
+This is useful because it doesn't spawn a new container for every command in the
+pipeline.
+
+```sh
+mblaze -c 'mlist gmail/Inbox | mthread -r -S local/Sent | mseq -S | mscan'
+```
+
 Check out the man page, `man mblaze`, to see the full list of available tools
 and their options.
 
