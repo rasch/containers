@@ -1,7 +1,22 @@
 #!/bin/sh
 
+dict="$HOME"/.config/xpod/aspell/dict_en_US
+repl="$HOME"/.config/xpod/aspell/repl_en_US
+
+if test -r "$dict"; then
+  use_dict=true
+fi
+
+if test -r "$repl"; then
+  use_repl=true
+fi
+
 if ! test -t 0; then
   no_tty=true
 fi
 
-xpod -B${no_tty:+i} -- --env LANG aspell "$@"
+xpod -B${no_tty:+i} -- \
+  --env LANG \
+  ${use_dict:+--volume "$dict":/root/.aspell.en.pws} \
+  ${use_repl:+--volume "$repl":/root/.aspell.en.prepl} \
+  aspell "$@"
