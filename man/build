@@ -50,6 +50,7 @@ buildah run "$container" -- \
     gnupg-doc \
     graphicsmagick-doc \
     htop-doc \
+    hunspell-doc \
     iftop-doc \
     imagemagick-doc \
     inkscape-doc \
