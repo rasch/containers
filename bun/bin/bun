@@ -1,0 +1,14 @@
+#!/bin/sh
+
+image=bun
+bun_intall_cache="$HOME"/.config/xpod/bun/install/cache
+
+test -n "$BUN_OFFICIAL_BUILD" && image=docker.io/oven/bun
+test -d "$bun_intall_cache" || mkdir -p "$bun_intall_cache"
+
+xpod -Bl -- \
+  --init \
+  --ulimit host \
+  --volume "$bun_intall_cache":/root/.bun/install/cache \
+  ${PORT:+--publish "$PORT":"$PORT"} \
+  $image "$@"
