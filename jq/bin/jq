@@ -1,0 +1,7 @@
+#!/bin/sh
+
+if ! test -t 0; then
+  no_tty=true
+fi
+
+xpod -Bl${no_tty:+i} -- jq "$@"
