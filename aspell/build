@@ -14,4 +14,9 @@ buildah config \
   --entrypoint '["aspell"]' \
   "$container"
 
+if ! buildah run -t "$container" -- aspell --version; then
+  printf 'ERROR: aspell not installed\n' >&2
+  exit 1
+fi
+
 buildah commit "$container" aspell
