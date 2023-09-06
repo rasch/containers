@@ -1,0 +1,17 @@
+#!/bin/sh
+
+container=$(buildah from --pull alpine:edge)
+
+trap 'buildah rm "$container"' EXIT INT TERM
+
+buildah run "$container" -- \
+  apk add --no-cache \
+    aspell \
+    aspell-en
+
+buildah config \
+  --cmd '[]' \
+  --entrypoint '["aspell"]' \
+  "$container"
+
+buildah commit "$container" aspell
