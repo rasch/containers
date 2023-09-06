@@ -1,0 +1,9 @@
+#!/bin/sh
+
+fnm_dir="$HOME"/.config/xpod/nodejs/fnm
+
+mkdir -p "$fnm_dir"
+
+xpod -Bl -- \
+  --volume "$fnm_dir":/root/.fnm \
+  nodejs npx "$@"

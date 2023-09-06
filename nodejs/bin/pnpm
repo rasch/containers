@@ -1,0 +1,11 @@
+#!/bin/sh
+
+fnm_dir="$HOME"/.config/xpod/nodejs/fnm
+pnpm_dir="$HOME"/.config/xpod/nodejs/pnpm
+
+mkdir -p "$fnm_dir" "$pnpm_dir"
+
+xpod -Bl -- \
+  --volume "$fnm_dir":/root/.fnm \
+  --volume "$pnpm_dir":/root/.pnpm-store \
+  nodejs pnpm "$@"

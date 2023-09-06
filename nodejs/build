@@ -1,0 +1,55 @@
+#!/bin/sh
+
+container=$(buildah from --pull debian:stable-slim)
+fnm=https://raw.githubusercontent.com/Schniz/fnm/master/.ci/install.sh
+
+trap 'buildah rm "$container"' EXIT INT TERM
+
+buildah copy "$container" scripts /usr/local/bin
+
+# shellcheck disable=SC2016
+buildah config \
+  --cmd '[]' \
+  --entrypoint '["entrypoint.sh"]' \
+  --env SHELL=/bin/bash \
+  --env PATH='/root/.local/share/fnm:$PATH' \
+  "$container"
+
+# fnm dependencies
+buildah run "$container" -- sh <<'EOF'
+apt update
+apt install --no-install-recommends --yes \
+  ca-certificates \
+  curl \
+  unzip
+rm -rf /var/lib/apt/lists/*
+EOF
+
+# fnm install
+buildah run "$container" -- \
+  sh -c "curl -fsSL $fnm | bash -s -- --skip-shell"
+
+# fnm configure
+buildah run "$container" -- sh <<'EOF'
+  echo 'eval "$(fnm env --use-on-cd --shell bash)"' >> "$HOME"/.bashrc
+EOF
+
+# pnpm install
+buildah run "$container" -- \
+  sh -c 'curl -fsSL https://get.pnpm.io/install.sh | sh -'
+
+# pnpm configure
+buildah run "$container" -- \
+  entrypoint.sh pnpm config set store-dir /root/.pnpm-store
+
+if ! buildah run -t "$container" -- entrypoint.sh fnm --version; then
+  printf 'ERROR: fnm not installed\n' >&2
+  exit 1
+fi
+
+if ! buildah run -t "$container" -- entrypoint.sh pnpm --version; then
+  printf 'ERROR: pnpm not installed\n' >&2
+  exit 1
+fi
+
+buildah commit "$container" nodejs
