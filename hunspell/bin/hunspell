@@ -6,11 +6,7 @@ if test -r "$dict"; then
   use_dict=true
 fi
 
-if ! test -t 0; then
-  no_tty=true
-fi
-
-xpod -B${no_tty:+i} -- \
+xpod -B -- \
   --env LANG \
   ${use_dict:+--volume "$dict":/root/.hunspell_en_US} \
   hunspell "$@"

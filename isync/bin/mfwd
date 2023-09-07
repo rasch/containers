@@ -13,11 +13,7 @@ test -d "$MAILDIR" || {
   exit 1
 }
 
-if ! test -t 0; then
-  no_tty=true
-fi
-
-xpod -l${no_tty:+i} -- \
+xpod -l -- \
   --entrypoint '["entrypoint.sh", "mfwd"]' \
   --env COLORTERM \
   --env EDITOR=vi \

@@ -11,11 +11,7 @@ if test -r "$repl"; then
   use_repl=true
 fi
 
-if ! test -t 0; then
-  no_tty=true
-fi
-
-xpod -B${no_tty:+i} -- \
+xpod -B -- \
   --env LANG \
   ${use_dict:+--volume "$dict":/root/.aspell.en.pws} \
   ${use_repl:+--volume "$repl":/root/.aspell.en.prepl} \

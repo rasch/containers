@@ -7,7 +7,7 @@ test -d "$MAILDIR" || {
   exit 1
 }
 
-xpod -tl -- \
+xpod -l -- \
   --entrypoint '["mhdr"]' \
   --env COLORTERM \
   --env MBLAZE_PAGER=more \

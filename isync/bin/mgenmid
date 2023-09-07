@@ -7,11 +7,7 @@ test -d "$MAILDIR" || {
   exit 1
 }
 
-if ! test -t 0; then
-  no_tty=true
-fi
-
-xpod -l${no_tty:+i} -- \
+xpod -l -- \
   --entrypoint '["mgenmid"]' \
   --env COLORTERM \
   --env MBLAZE_PAGER=more \

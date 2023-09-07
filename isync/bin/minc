@@ -10,11 +10,10 @@ test -d "$MAILDIR" || {
 entrypoint='["minc"]'
 
 if ! test -t 0; then
-  no_tty=true
   entrypoint='["xargs", "-r", "minc"]'
 fi
 
-xpod -${no_tty:+i}l -- \
+xpod -l -- \
   --entrypoint "$entrypoint" \
   --env COLORTERM \
   --env MBLAZE_PAGER=more \
