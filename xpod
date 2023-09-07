@@ -1,10 +1,13 @@
 #!/bin/sh
 
-attach=true
 cap_drop=true
+interactive=true
 command=${XPOD_RUNTIME:-podman}
 xephyr_background=${XPOD_XEPHYR_BG:-#21222c}
 xephyr_opts=${XPOD_XEPHYR_OPTS:- -dpi 120 -fullscreen}
+
+# enable tty if running interactively
+test -t 0 -a -t 1 && tty=true
 
 while :; do
   case "$1" in
@@ -58,7 +61,8 @@ while :; do
       #|     "--interactive --tty" flags.
       #|
       detach=true
-      unset attach
+      unset interactive
+      unset tty
       shift
       ;;
 
@@ -184,8 +188,7 @@ while :; do
       #|     By default, `xpod` runs the container with the options
       #|     `--interactive --tty`. This option disables the `--tty` flag.
       #|
-      interactive=true
-      unset attach
+      unset tty
       shift
       ;;
 
@@ -242,8 +245,7 @@ while :; do
       #|     `--interactive --tty`. This option disables the
       #|     `--interactive` flag.
       #|
-      tty=true
-      unset attach
+      unset interactive
       shift
       ;;
 
@@ -363,7 +365,6 @@ $command run \
   ${cap_drop:+--cap-drop ALL} \
   ${fuse:+--cap-add SYS_ADMIN --device /dev/fuse} \
   ${audio:+--volume /dev/snd:/dev/snd:ro} \
-  ${attach:+--interactive --tty} \
   ${interactive:+--interactive} \
   ${tty:+--tty} \
   ${detach:+--detach} \
