@@ -7,14 +7,8 @@ test -d "$MAILDIR" || {
   exit 1
 }
 
-entrypoint='["minc"]'
-
-if ! test -t 0; then
-  entrypoint='["xargs", "-r", "minc"]'
-fi
-
 xpod -l -- \
-  --entrypoint "$entrypoint" \
+  --entrypoint '["minc"]' \
   --env COLORTERM \
   --env MBLAZE_PAGER=more \
   --env TERM \
