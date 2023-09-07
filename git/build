@@ -24,19 +24,17 @@ chmod 2700 /root/.ssh /root/.gnupg
 chmod 600 /root/.ssh/* /root/.gnupg/*
 EOF
 
-buildah run "$container" -- \
-  wget -qO /root/.gitmoji \
-    https://raw.githubusercontent.com/carloscuesta/gitmoji/master/packages/gitmojis/src/gitmojis.json
+buildah copy "$container" \
+  https://raw.githubusercontent.com/carloscuesta/gitmoji/master/packages/gitmojis/src/gitmojis.json \
+  /root/.gitmoji
 
-buildah run "$container" -- \
-  wget -qO /root/.config/git/gitalias \
-    https://raw.githubusercontent.com/GitAlias/gitalias/main/gitalias.txt
+buildah copy "$container" \
+  https://raw.githubusercontent.com/GitAlias/gitalias/main/gitalias.txt \
+  /root/.config/git/gitalias
 
-buildah run "$container" -- sh <<'EOF'
-wget -qO /usr/local/bin/mkrepo \
-  https://git.sr.ht/~rasch/mkrepo/blob/main/mkrepo && \
-  chmod +x /usr/local/bin/mkrepo
-EOF
+buildah copy --chmod 755 "$container" \
+  https://git.sr.ht/~rasch/mkrepo/blob/main/mkrepo \
+  /usr/local/bin/mkrepo
 
 buildah run "$container" -- \
   git hooks

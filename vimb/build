@@ -39,12 +39,9 @@ buildah run "$build" -- \
 
 buildah copy --from "$build" "$container" /wyebadblock/wyebab /usr/bin/
 
-buildah run "$container" -- \
-  mkdir -p /root/.config/wyebadblock
-
-buildah run "$container" -- \
-  wget -qO /root/.config/wyebadblock/easylist.txt \
-    https://easylist.to/easylist/easylist.txt
+buildah copy "$container" \
+  https://easylist.to/easylist/easylist.txt \
+  /root/.config/wyebadblock/easylist.txt
 
 # setup SimplyRead
 

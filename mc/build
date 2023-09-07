@@ -9,9 +9,9 @@ buildah run "$container" -- \
     mc \
     openssh-client
 
-buildah run "$container" -- \
-  wget -qO /usr/share/mc/skins/dracula.ini \
-    https://raw.githubusercontent.com/dracula/midnight-commander/master/skins/dracula.ini
+buildah copy "$container" \
+  https://raw.githubusercontent.com/dracula/midnight-commander/master/skins/dracula.ini \
+  /usr/share/mc/skins/dracula.ini
 
 buildah config \
   --cmd '[]' \

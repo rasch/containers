@@ -8,13 +8,12 @@ buildah run "$container" -- \
   sh -c 'apt update && \
     apt install --no-install-recommends --yes \
       ca-certificates \
-      curl \
       libgl1-mesa-dri \
       libgl1-mesa-glx'
 
-buildah run "$container" -- \
-  curl -Lo /tmp/tsc.deb \
-    'https://ftp.secretchronicles.org/releases/TSC-2.1.0-bullseye-amd64.deb'
+buildah copy "$container" \
+  https://ftp.secretchronicles.org/releases/TSC-2.1.0-bullseye-amd64.deb \
+  /tmp/tsc.deb
 
 if ! buildah run "$container" -- sh -c "sha256sum -c <<'EOF'
 30701ef6fb4fcf9afe36286ff00734af9ae474483db302de201f2c04ca07981a  /tmp/tsc.deb
@@ -28,7 +27,7 @@ buildah run "$container" -- \
     rm -fr /tmp/tsc.deb'
 
 buildah run "$container" -- \
-  sh -c 'apt purge --yes ca-certificates curl && \
+  sh -c 'apt purge --yes ca-certificates && \
     apt autoremove --yes && \
     rm -fr /var/lib/apt/lists/*'
 

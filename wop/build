@@ -8,7 +8,6 @@ buildah run "$container" -- \
   sh -c 'apt update && \
     apt install --no-install-recommends --yes \
       ca-certificates \
-      curl \
       libgl1-mesa-dri \
       libgl1-mesa-glx \
       libopenal-dev \
@@ -16,15 +15,15 @@ buildah run "$container" -- \
       unzip && \
     rm -rf /var/lib/apt/lists/*'
 
-# NOTE: if curl doesn't download wop, then download it manually into the same
+# NOTE: if wop doesn't download, then download it manually into the same
 # directory as this build script. https://worldofpadman.net/en/download/
+wop_path=https://www.moddb.com/downloads/mirror/224119/123/445874e57e0b73820837ca69380a99aa
+
 if test -f wop-1.6.2-full-unified.zip; then
-  buildah copy "$container" wop-1.6.2-full-unified.zip /tmp/wop.zip
-else
-  buildah run "$container" -- \
-    curl -Lo /tmp/wop.zip \
-      'https://www.moddb.com/downloads/mirror/224119/124/7a5c6a6f276dce6a349edcb372c00343'
+  wop_path=wop-1.6.2-full-unified.zip
 fi
+
+buildah copy "$container" "$wop_path" /tmp/wop.zip
 
 if ! buildah run "$container" -- sh -c "sha1sum -c <<'EOF'
 c80bba2cb58a85953c42b9cffc1a9c324005bf1d  /tmp/wop.zip
@@ -37,7 +36,7 @@ buildah run "$container" -- \
   sh -c 'unzip /tmp/wop.zip -d /usr/games && rm -fr /tmp/wop.zip'
 
 buildah run "$container" -- \
-  sh -c 'apt purge --yes ca-certificates curl unzip && apt autoremove --yes'
+  sh -c 'apt purge --yes ca-certificates unzip && apt autoremove --yes'
 
 buildah config \
   --cmd '[]' \

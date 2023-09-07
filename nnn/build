@@ -14,8 +14,9 @@ buildah run "$build" -- \
 buildah run "$build" -- \
   git clone --depth 1 https://github.com/jarun/nnn.git
 
-buildah run "$build" -- \
-  wget https://git.alpinelinux.org/aports/plain/community/nnn/musl-fts-support.patch
+buildah copy "$build" \
+  https://git.alpinelinux.org/aports/plain/community/nnn/musl-fts-support.patch \
+  musl-fts-support.patch
 
 buildah run "$build" -- \
   patch -u nnn/Makefile -i musl-fts-support.patch

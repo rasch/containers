@@ -4,23 +4,20 @@ container=$(buildah from --pull alpine:edge)
 
 trap 'buildah rm "$container"' EXIT INT TERM
 
-buildah run "$container" -- \
-  mkdir -p /usr/local/share/man/man1 /usr/local/share/man/man6
+buildah copy "$container" \
+  https://codeberg.org/nsxiv/nsxiv/raw/branch/master/etc/nsxiv.1 \
+  https://github.com/asciidoctor/asciidoctor/raw/main/man/asciidoctor.1 \
+  https://github.com/jgm/pandoc/raw/main/man/pandoc.1 \
+  https://github.com/mawww/kakoune/raw/master/doc/kak.1 \
+  https://github.com/mcpcpc/kirc/raw/master/kirc.1 \
+  https://github.com/openscad/openscad/raw/master/doc/openscad.1 \
+  'https://sourceforge.net/p/fuse-emulator/code/HEAD/tree/trunk/fuse/man/fuse.1?format=raw' \
+  /usr/local/share/man/man1
 
-buildah run "$container" -- \
-  wget -qP /usr/local/share/man/man1 \
-    https://codeberg.org/nsxiv/nsxiv/raw/branch/master/etc/nsxiv.1 \
-    https://github.com/asciidoctor/asciidoctor/raw/main/man/asciidoctor.1 \
-    https://github.com/jgm/pandoc/raw/main/man/pandoc.1 \
-    https://github.com/mawww/kakoune/raw/master/doc/kak.1 \
-    https://github.com/mcpcpc/kirc/raw/master/kirc.1 \
-    https://github.com/openscad/openscad/raw/master/doc/openscad.1 \
-    'https://sourceforge.net/p/fuse-emulator/code/HEAD/tree/trunk/fuse/man/fuse.1?format=raw'
-
-buildah run "$container" -- \
-  wget -qP /usr/local/share/man/man6 \
-    https://github.com/mupen64plus/mupen64plus-ui-console/raw/master/doc/mupen64plus.6 \
-    https://github.com/supertuxkart/stk-code/raw/master/doc/supertuxkart.6
+buildah copy "$container" \
+  https://github.com/mupen64plus/mupen64plus-ui-console/raw/master/doc/mupen64plus.6 \
+  https://github.com/supertuxkart/stk-code/raw/master/doc/supertuxkart.6 \
+  /usr/local/share/man/man6
 
 buildah run "$container" -- \
   apk add --no-cache \

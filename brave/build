@@ -5,27 +5,28 @@ keyring=brave-browser-archive-keyring.gpg
 
 trap 'buildah rm "$container"' EXIT INT TERM
 
-buildah run "$container" -- \
-  sh -c 'apt update && apt install --yes wget'
+buildah run "$container" -- sh -c \
+  'apt update && apt install --no-install-recommends --yes ca-certificates'
 
-buildah run "$container" -- \
-  wget --no-verbose \
-    --output-document /usr/share/keyrings/"$keyring" \
-    https://brave-browser-apt-release.s3.brave.com/"$keyring"
+buildah copy --chmod 644 "$container" \
+  https://brave-browser-apt-release.s3.brave.com/"$keyring" \
+  /usr/share/keyrings/"$keyring"
 
-buildah run "$container" -- \
-  sh -c "printf 'deb [signed-by=/usr/share/keyrings/%s] %s stable main\n' \
-    $keyring https://brave-browser-apt-release.s3.brave.com/ | \
-    tee /etc/apt/sources.list.d/brave-browser-release.list"
+buildah run "$container" -- sh <<EOF
+printf 'deb [signed-by=/usr/share/keyrings/%s] %s stable main\n' \
+  "$keyring" https://brave-browser-apt-release.s3.brave.com/ | \
+  tee /etc/apt/sources.list.d/brave-browser-release.list
+EOF
 
-buildah run "$container" -- \
-  sh -c 'apt update && \
-    apt install --no-install-recommends --yes \
-      brave-browser \
-      libgl1-mesa-dri \
-      libgl1-mesa-glx \
-      libpulse0 && \
-    rm -rf /var/lib/apt/lists/*'
+buildah run "$container" -- sh <<'EOF'
+apt update
+apt install --no-install-recommends --yes \
+  brave-browser \
+  libgl1-mesa-dri \
+  libgl1-mesa-glx \
+  libpulse0
+rm -rf /var/lib/apt/lists/*
+EOF
 
 buildah run "$container" -- \
   useradd -ms /bin/bash -G audio,video braveuser

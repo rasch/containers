@@ -15,10 +15,9 @@ buildah run "$container" -- \
     nyancat \
     sl
 
-buildah run "$container" -- \
-  sh -c 'wget -qO /usr/local/bin/pipes \
-    https://github.com/pipeseroni/pipes.sh/raw/master/pipes.sh && \
-    chmod +x /usr/local/bin/pipes'
+buildah copy --chmod 755 "$container" \
+  https://github.com/pipeseroni/pipes.sh/raw/master/pipes.sh \
+  /usr/local/bin/pipes
 
 buildah config \
   --cmd '[]' \
