@@ -8,20 +8,12 @@ container=$(buildah from --pull alpine:edge)
 
 trap 'buildah rm "$container"' EXIT INT TERM
 
-buildah run "$container" -- \
-  sh -c "wget -O $path $src && chmod +x $path"
+buildah copy --chmod 755 "$container" "$src" "$path"
 
-actualSum=$(
-  buildah run "$container" -- \
-    sh -c "sha256sum $path | cut -d ' ' -f 1"
-)
-
-expectedSum=$(
-  buildah run "$container" -- \
-    sh -c "wget -qO - $chksum_url | grep -A 2 $src | grep -oE '[0-9a-f]{64}'"
-)
-
-if test "$actualSum" != "$expectedSum"; then
+if ! buildah run "$container" -- sh -c "test \
+  \$(sha256sum $path | cut -d ' ' -f 1) = \
+  \$(wget -qO - $chksum_url | grep -A 2 $src | grep -oE '[0-9a-f]{64}')"
+then
   printf 'ERROR: sha256 sums do NOT match!\n' >&2
   exit 1
 fi

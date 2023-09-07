@@ -1,8 +1,3 @@
 #!/bin/sh
 
-# NOTE: the password prompts display the input because there is no tty
-# attached. If the password must be hidden, use the `toplip-repl` container
-# instead. This just does not work properly in a tty, because the extra
-# messages printed by toplip get added to the output.
-
-xpod -iB -- --entrypoint '["toplip"]' toplip "$@"
+xpod -B -- --entrypoint '["toplip"]' toplip "$@"
