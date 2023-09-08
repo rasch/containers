@@ -1,0 +1,43 @@
+#!/bin/sh
+
+if test "$1" = '--help'; then
+  cat <<'EOF'
+Usage: git-to-fossil [repo_name]
+
+  Import a Git repository into Fossil. If `repo_name` is not provided,
+  then the base name of the current working directory is used. The
+  fossil repository is saved to `/museum/[repo_name].fossil`. If the
+  Fossil repository already exists, then an incremental import is
+  performed.
+
+  Fossil determines the admin user for the newly created repository from
+  the `$USER` environment variable. In the Fossil container, `$GIT_USER`
+  is used with a fallback to `$USER`. If neither variable is set, then
+  the output of the `whoami` command is used.
+
+  This script and the Fossil container expect that all of the Fossil
+  reposiories are stored in a directory that is defined using the
+  environment variable, `MUSEUM`. The `$MUSEUM` directory is mounted at
+  `/museum` in the Fossil container. If `$MUSEUM` is unset, then
+  `$HOME/.config/xpod/fossil/museum` is used.
+EOF
+  exit
+fi
+
+if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  echo "ERROR: not a git repository" >&2
+  exit 1
+fi
+
+dir="${1:-$(pwd)}"
+name="${dir##*/}"
+museum="${MUSEUM:-$HOME/.config/xpod/fossil/museum}"
+fossil_repo="$museum"/"$name".fossil
+
+test -d "$museum" || mkdir -p "$museum"
+test -f "$fossil_repo" && incremental=true
+
+git fast-export --all --signed-tags=verbatim | \
+  fossil import --git \
+  ${incremental:+--incremental} \
+  /museum/"$name".fossil
