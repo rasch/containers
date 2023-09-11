@@ -1,0 +1,12 @@
+#!/bin/sh
+
+config="$HOME"/.config/xpod/pijul
+gpg_dir="${GPG_DIR:-${GNUPGHOME:-$HOME/.config/xpod/gnupg}}"
+
+test -d "$config" || mkdir -p "$config"
+test -d "$gpg_dir" && use_gpg=true
+
+xpod -Bl -- \
+  --volume "$config":/root/.config/pijul \
+  ${use_gpg:+--volume "$gpg_dir":/root/.gnupg} \
+  pijul "$@"
