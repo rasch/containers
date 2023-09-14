@@ -195,9 +195,14 @@ while :; do
     -l | --localtime)
       #| -l, --localtime
       #|     Set time zone in container to match the host by mounting
-      #|     /etc/localtime as a read only volume
+      #|     /etc/localtime as a read only volume. If XPOD_RUNTIME is
+      #|     set to "podman" then use the `--tz local` option instead.
       #|
-      localtime=true
+      if test "$command" = podman; then
+        localtime_podman=true
+      else
+        localtime=true
+      fi
       shift
       ;;
 
@@ -372,6 +377,7 @@ $command run \
   ${fonts:+--volume "$HOME"/.local/share/fonts:/root/.local/share/fonts:ro} \
   ${fonts:+--volume "$HOME"/.config/fontconfig:/root/.config/fontconfig:ro} \
   ${localtime:+--volume /etc/localtime:/etc/localtime:ro} \
+  ${localtime_podman:+--tz local} \
   ${gpu:+--volume /dev/dri:/dev/dri} \
   ${gpu:+--volume /dev/vga_arbiter:/dev/vga_arbiter} \
   ${group:+--pod containers} \
