@@ -4,7 +4,7 @@ theme = "dracula"
 auto-format = false
 color-modes = true
 mouse = false
-rulers = [80]
+rulers = [81]
 
 [editor.statusline]
 left = ["mode", "spacer", "spinner", "file-name", "spacer", "version-control", "file-modification-indicator"]
@@ -17,7 +17,6 @@ mode.select = "select"
 
 [editor.lsp]
 display-messages = true
-display-inlay-hints = true
 
 [editor.cursor-shape]
 normal = "block"
