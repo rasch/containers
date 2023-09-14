@@ -1,0 +1,25 @@
+#!/bin/sh
+
+container=$(buildah from --pull alpine:edge)
+
+trap 'buildah rm "$container"' EXIT INT TERM
+
+buildah run "$container" -- \
+  apk add --no-cache \
+    fossil \
+    gnupg
+
+buildah copy "$container" scripts /usr/local/bin
+buildah copy "$container" config /root
+
+buildah config \
+  --cmd '[]' \
+  --entrypoint '["entrypoint.sh", "fossil"]' \
+  "$container"
+
+if ! buildah run -t "$container" -- fossil version; then
+  printf 'ERROR: fossil not installed\n' >&2
+  exit 1
+fi
+
+buildah commit "$container" fossil

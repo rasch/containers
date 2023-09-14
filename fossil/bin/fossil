@@ -1,0 +1,21 @@
+#!/bin/sh
+
+config="$HOME"/.config/xpod/fossil
+museum="${MUSEUM:-$config/museum}"
+global="$config/fossil.db"
+gpg_dir="${FOSSIL_GPG_DIR:-${GPG_DIR:-${GNUPGHOME:-$HOME/.config/xpod/gnupg}}}"
+
+test -d "$config" || mkdir -p "$config"
+test -f "$global" || touch "$global"
+test -d "$museum" || mkdir -p "$museum"
+test -d "$gpg_dir" && use_gpg=true
+
+xpod -Bl -- \
+  --env EDITOR=vi \
+  --env FOSSIL_USER="${FOSSIL_USER:-${USER:-$(whoami)}}" \
+  --volume "$config":/root/.config \
+  --volume "$global":/root/.fossil \
+  --volume "$museum":/museum \
+  ${use_gpg:+--volume "$gpg_dir":/root/.gnupg} \
+  ${PORT:+--publish "$PORT":"$PORT"} \
+  fossil "$@" ${PORT:+--nojail --port $PORT}
