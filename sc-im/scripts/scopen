@@ -1,0 +1,16 @@
+#!/bin/sh
+
+File="$1"
+Ext=${File##*.}
+
+if printf '%s' "$File" | grep -qE '^(file|http|https|ftp|sftp)://.*'; then
+  exec w3m "$File"
+fi
+
+for e in sc csv tsv tab; do
+  test "$Ext" = "$e" && exec sc-im "$File"
+done
+
+test "$Ext" = html && exec w3m "$File"
+
+exec vi "$File"

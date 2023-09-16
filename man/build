@@ -6,6 +6,7 @@ trap 'buildah rm "$container"' EXIT INT TERM
 
 buildah copy "$container" \
   https://codeberg.org/nsxiv/nsxiv/raw/branch/master/etc/nsxiv.1 \
+  https://github.com/andmarti1424/sc-im/raw/main/src/sc-im.1 \
   https://github.com/asciidoctor/asciidoctor/raw/main/man/asciidoctor.1 \
   https://github.com/jgm/pandoc/raw/main/man/pandoc.1 \
   https://github.com/mawww/kakoune/raw/master/doc/kak.1 \
@@ -45,6 +46,7 @@ buildah run "$container" -- \
     gimp-doc \
     git-doc \
     gnupg-doc \
+    gnuplot-doc \
     graphicsmagick-doc \
     htop-doc \
     hunspell-doc \

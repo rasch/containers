@@ -1,0 +1,32 @@
+set autocalc
+set input_bar_bottom
+
+define_color "comment" 98 114 164
+define_color "selection" 68 71 90
+
+color "type=HEADINGS fg=comment bg=BLACK"
+color "type=HEADINGS_ODD fg=comment bg=BLACK"
+color "type=MODE fg=GREEN bg=DEFAULT_COLOR"
+color "type=NUMB fg=GREEN bg=DEFAULT_COLOR"
+color "type=STRG fg=BLUE bg=DEFAULT_COLOR italic=1"
+color "type=DATEF fg=YELLOW bg=DEFAULT_COLOR"
+color "type=CELL_SELECTION fg=BLACK bg=comment"
+color "type=CELL_SELECTION_SC fg=DEFAULT_COLOR bg=selection"
+color "type=GRID_EVEN fg=DEFAULT_COLOR bg=DEFAULT_COLOR"
+color "type=GRID_ODD fg=DEFAULT_COLOR bg=DEFAULT_COLOR"
+color "type=EXPRESSION fg=MAGENTA bg=DEFAULT_COLOR"
+color "type=CELL_ERROR fg=BLACK bg=RED bold=1"
+color "type=CELL_NEGATIVE fg=GREEN bg=DEFAULT_COLOR italic=1"
+color "type=INFO_MSG fg=GREEN bg=DEFAULT_COLOR"
+color "type=ERROR_MSG fg=RED bg=DEFAULT_COLOR bold=1"
+color "type=CELL_ID fg=GREEN bg=DEFAULT_COLOR"
+color "type=CELL_FORMAT fg=comment bg=DEFAULT_COLOR"
+color "type=CELL_CONTENT fg=DEFAULT_COLOR bg=DEFAULT_COLOR bold=0"
+color "type=WELCOME fg=comment bg=DEFAULT_COLOR"
+color "type=NORMAL fg=DEFAULT_COLOR bg=DEFAULT_COLOR bold=0"
+color "type=INPUT fg=CYAN bg=DEFAULT_COLOR"
+color "type=HELP_HIGHLIGHT fg=BLACK bg=YELLOW"
+color "type=FILENM fg=GREEN bg=DEFAULT_COLOR"
+color "type=DEFAULT fg=DEFAULT_COLOR bg=DEFAULT_COLOR"
+color "type=SHEET fg=comment bg=DEFAULT_COLOR"
+color "type=CURRENT_SHEET fg=BLUE bg=DEFAULT_COLOR"

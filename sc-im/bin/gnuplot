@@ -1,0 +1,5 @@
+#!/bin/sh
+
+xpod -Blx -- \
+  --entrypoint '["gnuplot"]' \
+  sc-im "$@"

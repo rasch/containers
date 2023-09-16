@@ -1,0 +1,61 @@
+#!/bin/sh
+
+container=$(buildah from --pull alpine:edge)
+build=$(buildah from --pull alpine:edge)
+
+trap 'buildah rm "$build" "$container"' EXIT INT TERM
+
+buildah run "$build" -- \
+  apk add --no-cache \
+    bison \
+    gcc \
+    git \
+    gnuplot \
+    libxml2-dev \
+    libzip-dev \
+    lua-dev \
+    make \
+    musl-dev \
+    ncurses-dev
+
+buildah run "$build" -- \
+  git clone --branch main --depth 1 --single-branch \
+    https://github.com/andmarti1424/sc-im.git
+
+buildah run "$build" -- make -C sc-im/src
+
+buildah copy --from "$build" "$container" \
+  sc-im/src/sc-im /usr/local/bin/
+
+buildah copy --from "$build" "$container" \
+  sc-im/src/doc \
+  /usr/local/share/sc-im/sc-im_help
+
+buildah copy --from "$build" "$container" \
+  sc-im/src/plot_\* \
+  /usr/local/share/sc-im/
+
+buildah copy "$container" config /root/.config
+buildah copy "$container" scripts/scopen /usr/local/bin/scopen
+
+buildah run "$container" -- \
+  apk add --no-cache \
+    gnuplot \
+    libxml2 \
+    libzip \
+    lua-dev \
+    ncurses \
+    w3m
+
+buildah config \
+  --cmd '[]' \
+  --entrypoint '["sc-im"]' \
+  --env EDITOR=vi \
+  "$container"
+
+if ! buildah run -t "$container" -- sc-im --version; then
+  printf 'ERROR: sc-im not installed\n' >&2
+  exit 1
+fi
+
+buildah commit "$container" sc-im
