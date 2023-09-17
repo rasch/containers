@@ -1,0 +1,9 @@
+#!/bin/sh
+
+if test -d "$TORRENT_DIR"; then
+  xpod -- \
+    --mount type=bind,source="$TORRENT_DIR",target=/data \
+    rtorrent "$@"
+else
+  xpod -b -- rtorrent "$@"
+fi

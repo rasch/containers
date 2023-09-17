@@ -1,0 +1,37 @@
+#!/bin/sh
+
+container=$(buildah from --pull alpine:edge)
+
+trap 'buildah rm "$container"' EXIT INT TERM
+
+buildah run "$container" -- \
+  apk add --no-cache \
+    ca-certificates \
+    rtorrent
+
+# Use the "rTorrent Configuration Template" from the wiki page
+# https://github.com/rakshasa/rtorrent/wiki/CONFIG-Template
+# modified for use with public trackers.
+buildah run "$container" -- sh <<'EOF'
+wget -qO - \
+  https://raw.githubusercontent.com/wiki/rakshasa/rtorrent/CONFIG-Template.md | \
+  sed -ne '/^######/,/^### END/p' | \
+  sed -e 's:/home/USERNAME/rtorrent:/data:' \
+      -e 's/^dht\.mode\.set.*$/dht.mode.set = auto/' \
+      -e 's/^protocol\.pex\.set.*$/protocol.pex.set = yes/' \
+      -e 's/^trackers\.use_udp\.set.*$/trackers.use_udp.set = yes/' > \
+    /root/.rtorrent.rc
+echo 'dht_port = 6881' >> /root/.rtorrent.rc
+EOF
+
+buildah config \
+  --cmd '[]' \
+  --entrypoint '["rtorrent"]' \
+  "$container"
+
+if ! buildah run -t "$container" -- rtorrent -h >/dev/null 2>&1; then
+  printf 'ERROR: rtorrent not installed\n' >&2
+  exit 1
+fi
+
+buildah commit "$container" rtorrent
