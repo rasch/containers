@@ -1,0 +1,3 @@
+#!/bin/sh
+
+xpod -- transmission-remote "$@"

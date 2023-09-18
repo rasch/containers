@@ -1,0 +1,16 @@
+#!/bin/sh
+
+config_dir="$HOME"/.config/xpod/transmission-daemon
+download_dir="${TORRENT_DIR:-$(pwd)}"/download
+inet="${XPOD_INET:-10.0.2.100}"
+
+test -d "$config_dir" || mkdir -p "$config_dir"
+test -d "$download_dir" || mkdir -p "$download_dir"
+
+xpod -d -- \
+  --publish 9091:9091 \
+  --publish 51413:51413 \
+  --publish 51413:51413/udp \
+  --mount type=bind,source="$config_dir",target=/root/.config/transmission-daemon \
+  --mount type=bind,source="$download_dir",target=/root/Downloads \
+  transmission-daemon --foreground --allowed "$inet" "$@"
