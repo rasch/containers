@@ -1,0 +1,25 @@
+#!/bin/sh
+
+container=$(buildah from --pull debian:stable-slim)
+
+trap 'buildah rm "$container"' EXIT INT TERM
+
+buildah run "$container" -- sh <<'EOF'
+apt update
+apt install --no-install-recommends --yes \
+  0ad \
+  libgl1-mesa-dri \
+  libgl1-mesa-glx
+rm -rf /var/lib/apt/lists/*
+EOF
+
+buildah run "$container" -- \
+  useradd -ms /bin/bash 0ad
+
+buildah config \
+  --cmd '[]' \
+  --entrypoint '["/usr/games/0ad"]' \
+  --user 0ad \
+  "$container"
+
+buildah commit "$container" 0ad

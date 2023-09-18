@@ -1,0 +1,14 @@
+#!/bin/sh
+
+config_dir="$HOME"/.config/xpod/0ad
+
+test -d "$config_dir"/config || mkdir -p "$config_dir"/config
+test -d "$config_dir"/share || mkdir -p "$config_dir"/share
+
+# TODO: there is no audio in this 0ad container. Both of xpod's audio methods,
+# `-p` and `-a`, require root inside the rootless container. 0ad doesn't allow
+# running as root, so audio has been disabled (for now).
+xpod -gx -- \
+  --volume "$config_dir"/config:/home/0ad/.config/0ad:U \
+  --volume "$config_dir"/share:/home/0ad/.local/share/0ad:U \
+  0ad -nosound "$@"
