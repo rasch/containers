@@ -1,0 +1,8 @@
+#!/bin/sh
+
+xpod -- \
+  --network host \
+  --pid host \
+  --pull newer \
+  docker.io/nicolargo/glances:alpine-latest-full \
+  glances "$@"

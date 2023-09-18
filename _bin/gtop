@@ -1,0 +1,7 @@
+#!/bin/sh
+
+xpod -- \
+  --network host \
+  --pid host \
+  --pull newer \
+  docker.io/aksakalli/gtop

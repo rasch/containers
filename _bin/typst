@@ -1,0 +1,6 @@
+#!/bin/sh
+
+xpod -Bfl -- \
+  --entrypoint '["typst"]' \
+  --pull newer \
+  ghcr.io/typst/typst:latest "$@"
