@@ -370,6 +370,7 @@ $command run \
   ${cap_drop:+--cap-drop ALL} \
   ${fuse:+--cap-add SYS_ADMIN --device /dev/fuse} \
   ${audio:+--volume /dev/snd:/dev/snd:ro} \
+  ${audio:+--env ALSA_CARD} \
   ${interactive:+--interactive} \
   ${tty:+--tty} \
   ${detach:+--detach} \
