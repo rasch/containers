@@ -94,7 +94,7 @@ buildah run "$container" -- \
     dropbear-scp \
     dropbear-ssh \
     editorconfig \
-    exa \
+    eza \
     file \
     git \
     gnupg \

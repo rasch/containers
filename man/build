@@ -37,7 +37,7 @@ buildah run "$container" -- \
     dillo-doc \
     dropbear-doc \
     dunst-doc \
-    exa-doc \
+    eza-doc \
     ffmpeg-doc \
     file-doc \
     fontforge-doc \

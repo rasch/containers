@@ -6,17 +6,17 @@ trap 'buildah rm "$container"' EXIT INT TERM
 
 buildah run "$container" -- \
   apk add --no-cache \
-    exa \
+    eza \
     file
 
 buildah config \
   --cmd '[]' \
-  --entrypoint '["exa"]' \
+  --entrypoint '["eza"]' \
   "$container"
 
-if ! buildah run -t "$container" -- exa --version; then
-  printf 'ERROR: exa not installed\n' >&2
+if ! buildah run -t "$container" -- eza --version; then
+  printf 'ERROR: eza not installed\n' >&2
   exit 1
 fi
 
-buildah commit "$container" exa
+buildah commit "$container" eza
