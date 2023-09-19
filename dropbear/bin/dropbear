@@ -1,0 +1,21 @@
+#!/bin/sh
+
+port="${PORT:-2022}"
+config="$HOME"/.config/xpod/dropbear
+host_key=dropbear_ed25519_host_key
+
+create_key() {
+  mkdir -p "$config"
+  cd "$config" && dropbearkey -t ed25519 -f "$host_key"
+}
+
+test -f "$config"/authorized_keys && auth_keys=true
+test -f "$config"/"$host_key" || create_key
+
+xpod -bdl -- \
+  --cap-add SETGID \
+  --name dropbear-"$port" \
+  --publish "$port":"$port" \
+  --volume "$config"/"$host_key":/etc/dropbear/"$host_key" \
+  ${auth_keys:+--volume "$config"/authorized_keys:/root/.ssh/authorized_keys} \
+  dropbear -FEp "$port" -r /etc/dropbear/"$host_key" "$@"

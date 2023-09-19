@@ -1,0 +1,5 @@
+#!/bin/sh
+
+xpod -Bl -- \
+  --entrypoint '["dropbearconvert"]' \
+  dropbear "$@"
