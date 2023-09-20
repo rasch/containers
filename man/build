@@ -55,6 +55,7 @@ buildah run "$container" -- \
     inkscape-doc \
     isync-doc \
     jq-doc \
+    ledger-doc \
     less \
     lf-doc \
     make-doc \

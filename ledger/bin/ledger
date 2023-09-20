@@ -1,0 +1,7 @@
+#!/bin/sh
+
+xpod -Bl -- \
+  --env COLORTERM \
+  --env PAGER=more \
+  --env TERM \
+  ledger "$@"
