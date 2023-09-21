@@ -1,0 +1,92 @@
+#!/bin/sh
+
+build=$(buildah from --pull alpine:edge)
+container=$(buildah from --pull alpine:edge)
+
+trap 'buildah rm "$build" "$container"' EXIT INT TERM
+
+buildah run "$build" -- \
+  apk add --no-cache \
+    gcc \
+    gcr-dev \
+    git \
+    glib-dev \
+    gnupg \
+    gtk+3.0-dev \
+    libx11-dev \
+    make \
+    musl-dev \
+    ncurses \
+    patch \
+    webkit2gtk-dev
+
+buildah copy "$build" config /tmp
+
+# build surf, tabbed, dmenu, st
+
+buildah run "$build" -- sh <<'EOF'
+for repo in surf tabbed dmenu st; do
+  git clone --depth 1 https://git.suckless.org/"$repo"
+  test -f /tmp/"$repo".patch && \
+    patch -u "$repo"/config.def.h -i /tmp/"$repo".patch
+  make -C "$repo" install
+done
+EOF
+
+# download and verify simplyread
+
+simplyread_url=https://njw.name/simplyread/simplyread-0.8.tar.bz2
+simplyread="${simplyread_url##*/}"
+
+buildah copy "$build" "$simplyread_url" /tmp
+buildah copy "$build" "$simplyread_url".sig /tmp
+
+buildah run "$build" -- gpg --recv 1F48567404E4653F
+buildah run "$build" -- gpg --verify /tmp/"$simplyread".sig /tmp/"$simplyread"
+buildah run "$build" -- sh -c \
+  "tar xjOf /tmp/$simplyread simplyread-0.8/simplyread.js >> /tmp/script.js"
+
+# build adblock
+
+buildah run "$build" -- \
+  git clone --depth 1 https://github.com/jun7/wyebadblock.git
+
+buildah run "$build" -- sh -c 'make -C wyebadblock'
+
+# add configuration and build files to container
+
+buildah copy --from "$build" "$container" /usr/local /usr/local
+buildah copy --from "$build" "$container" /tmp/script.js /root/.surf/
+buildah copy --from "$build" "$container" /wyebadblock/wyebab /usr/local/bin/
+buildah copy --from "$build" "$container" \
+  /wyebadblock/adblock.so /usr/local/lib/surf/
+
+buildah copy "$container" config/default.css /root/.surf/styles/
+buildah copy "$container" \
+  https://easylist.to/easylist/easylist.txt /root/.config/wyebadblock/
+
+buildah run "$container" -- \
+  apk add --no-cache \
+    ca-certificates \
+    curl \
+    gcr \
+    gst-libav \
+    gst-plugins-base \
+    gst-plugins-good \
+    mesa-demos \
+    mesa-dri-gallium \
+    webkit2gtk \
+    xprop
+
+buildah config \
+  --cmd '[]' \
+  --entrypoint '["surf"]' \
+  --env GTK_THEME=Adwaita:dark \
+  "$container"
+
+if ! buildah run -t "$container" -- sh -c 'command -v surf >/dev/null'; then
+  printf 'ERROR: surf not installed\n' >&2
+  exit 1
+fi
+
+buildah commit "$container" surf

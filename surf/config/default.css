@@ -1,0 +1,105 @@
+*,
+body,
+div,
+input,
+p,
+pre,
+td,
+textarea,
+tr {
+  background-color: #282a36 !important;
+  color: #f8f8f2 !important;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  background-color: #282a36 !important;
+  color: #bd93f9 !important;
+}
+
+a:link {
+  color: #8be9fd !important;
+}
+
+a:focus,
+a:hover {
+  color: #ff79c6 !important;
+}
+
+a:visited {
+  color: #6272a4 !important;
+}
+
+img {
+  opacity: 0.5;
+}
+
+img:hover {
+  opacity: 1;
+}
+
+body::-webkit-scrollbar {
+  display: none;
+}
+
+::selection {
+  background: #ff79c6 !important;
+  color: #f8f8f2 !important;
+}
+
+/***************************
+ | Link Hinting styles     |
+ ***************************/
+
+.surf-link-hints::before {
+  background-color: #6272a4;
+  color: #f8f8f2;
+  content: attr(data-hint-label);
+  font-size: 10px;
+  font-style: normal;
+  font-weight: normal;
+  margin-right: 2px;
+  padding: 0 3px;
+  position: absolute;
+  z-index: 999;
+}
+
+.surf-link-hints-selected::before {
+  background-color: #f1fa8c;
+  color: #21222c;
+  font-size: 12px;
+}
+
+.surf-link-hints {
+  outline: 1px solid #6272a4;
+}
+
+/***************************
+ | DuckDuckGo Lite styles  |
+ ***************************/
+
+#lite_wrapper .header {
+  color: #6272a4 !important;
+  font-family: "Victor Mono", monospace !important;
+}
+
+form[action="/lite/"] input.query {
+  border: none !important;
+  border-bottom: 1px solid #6272a4 !important;
+  border-radius: revert !important;
+}
+
+form[action="/lite/"] input.submit {
+  display: none !important;
+}
+
+form[action="/lite/"] select {
+  appearance: none !important;
+  background-color: transparent !important;
+  border: 1px solid #6272a4 !important;
+  font-size: 0.8rem !important;
+  height: 24px !important;
+  padding: 0 0 0 10px !important;
+}

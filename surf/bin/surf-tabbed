@@ -1,0 +1,17 @@
+#!/bin/sh
+
+cache_dir="$HOME"/.cache/xpod/surf
+
+if ! test -d "$cache_dir"; then
+  mkdir -p "$cache_dir"/certificates "$cache_dir"/cache
+  touch "$cache_dir"/cookies.txt
+fi
+
+xpod -dfgpX -- \
+  --entrypoint '["tabbed", "-c", "surf", "-e"]' \
+  --volume "$HOME"/Downloads:/data \
+  --volume "$cache_dir"/certificates:/root/.surf/certificates \
+  --volume "$cache_dir"/cache:/root/.surf/cache \
+  --volume "$cache_dir"/cookies.txt:/root/.surf/cookies.txt \
+  --workdir /data \
+  surf
