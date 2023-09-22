@@ -1,0 +1,21 @@
+#!/bin/sh
+
+container=$(buildah from --pull alpine:edge)
+
+trap 'buildah rm "$container"' EXIT INT TERM
+
+buildah run "$container" -- \
+  apk add --no-cache \
+    aria2
+
+buildah config \
+  --cmd '[]' \
+  --entrypoint '["aria2c"]' \
+  "$container"
+
+if ! buildah run -t "$container" -- aria2c --version; then
+  printf 'ERROR: aria2 not installed\n' >&2
+  exit 1
+fi
+
+buildah commit "$container" aria2

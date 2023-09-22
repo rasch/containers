@@ -22,6 +22,7 @@ buildah copy "$container" \
 
 buildah run "$container" -- \
   apk add --no-cache \
+    aria2-doc \
     aspell-doc \
     bash-doc \
     bat-doc \
