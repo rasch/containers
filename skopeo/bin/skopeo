@@ -1,0 +1,14 @@
+#!/bin/sh
+
+config_dir="$HOME"/.config/xpod/skopeo
+container_dir="${XPOD_CONTAINER_DIR:-$HOME/.local/share/containers/storage}"
+
+test -d "$config_dir" || mkdir -p "$config_dir"
+test -d "$container_dir" || mkdir -p "$container_dir"
+
+xpod -l -- \
+  --privileged \
+  --env REGISTRY_AUTH_FILE=/root/.config/containers/auth.json \
+  --volume "$config_dir":/root/.config/containers \
+  --volume "$container_dir":/var/lib/containers/storage \
+  localhost/skopeo "$@"

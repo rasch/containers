@@ -86,6 +86,7 @@ buildah run "$container" -- \
     rsync-doc \
     ruby-doc \
     shellcheck-doc \
+    skopeo-doc \
     sl-doc \
     s-nail-doc \
     socat-doc \
