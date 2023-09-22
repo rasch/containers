@@ -1,0 +1,16 @@
+#!/bin/sh
+
+container_dir="${XPOD_CONTAINER_DIR:-$HOME/.local/share/containers}"
+
+test -d "$container_dir" || mkdir -p "$container_dir"
+test -d "$XPOD_CONTAINER_STORE" && container_store=true
+
+xpod -Bl -- \
+  --cap-add SETFCAP \
+  --cap-add SETGID \
+  --cap-add SETUID \
+  --cap-add SYS_CHROOT \
+  --device /dev/fuse \
+  --volume "$container_dir":/var/lib/containers \
+  ${container_store:+--volume "$XPOD_CONTAINER_STORE":/var/lib/shared:ro} \
+  localhost/buildah "$@"

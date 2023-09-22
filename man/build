@@ -28,6 +28,7 @@ buildah run "$container" -- \
     bat-doc \
     binutils-doc \
     bmon-doc \
+    buildah-doc \
     cbonsai-doc \
     chafa-doc \
     clifm-doc \
