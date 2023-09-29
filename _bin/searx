@@ -1,0 +1,22 @@
+#!/bin/sh
+
+port=${PORT:-8080}
+config="$HOME"/.config/xpod/searx
+
+test -d "$config" || mkdir -p "$config"
+
+if ! podman pod exists containers; then
+  podman pod create containers
+fi
+
+# stop and remove searx container if it's already running
+podman rm --force --ignore searx
+
+xpod -dG -- \
+  --cap-add SETGID \
+  --cap-add SETUID \
+  --env BASE_URL="http://localhost:$port/" \
+  --name searx \
+  --pull newer \
+  --volume "$config":/etc/searx \
+  docker.io/searxng/searxng
