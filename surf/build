@@ -38,11 +38,16 @@ EOF
 simplyread_url=https://njw.name/simplyread/simplyread-0.8.tar.bz2
 simplyread="${simplyread_url##*/}"
 
-buildah copy "$build" "$simplyread_url" /tmp
-buildah copy "$build" "$simplyread_url".sig /tmp
+buildah copy "$build" "$simplyread_url" "$simplyread_url".sig /tmp
 
-buildah run "$build" -- gpg --recv 1F48567404E4653F
-buildah run "$build" -- gpg --verify /tmp/"$simplyread".sig /tmp/"$simplyread"
+verify_cmd="gpg --receive-keys 1F48567404E4653F &&
+  gpg --verify /tmp/$simplyread.sig /tmp/$simplyread"
+
+if ! buildah run "$build" -- sh -c "$verify_cmd"; then
+  printf 'ERROR: simplyread - invalid signature\n' >&2
+  exit 1
+fi
+
 buildah run "$build" -- sh -c \
   "tar xjOf /tmp/$simplyread simplyread-0.8/simplyread.js >> /tmp/script.js"
 
