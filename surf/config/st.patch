@@ -8,7 +8,7 @@
 -static int borderpx = 2;
 +static char *font = "monospace:pixelsize=20:antialias=true:autohint=true";
 +static int borderpx = 20;
- 
+
  /*
   * What program is execed by st depends of these precedence rules:
 @@ -96,30 +96,30 @@
@@ -31,7 +31,7 @@
 +	"#ff79c6",
 +	"#8be9fd",
 +	"#f8f8f2",
- 
+
  	/* 8 bright colors */
 -	"gray50",
 -	"red",
@@ -49,9 +49,9 @@
 +	"#ff92df",
 +	"#a4ffff",
 +	"#ffffff",
- 
+
  	[255] = 0,
- 
+
  	/* more colors can be added after 255 to use with DefaultXX */
 -	"#cccccc",
 -	"#555555",
@@ -71,5 +71,5 @@
 +unsigned int defaultbg = 256;
 +unsigned int defaultcs = 257;
  static unsigned int defaultrcs = 257;
- 
+
  /*

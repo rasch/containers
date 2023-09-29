@@ -27,13 +27,13 @@
 -	[ZoomLevel]           =       { { .f = 1.0 },   },
 +	[ZoomLevel]           =       { { .f = 1.2 },   },
  };
- 
+
  static UriParameters uriparams[] = {
 @@ -158,6 +158,7 @@
  	{ MODKEY|GDK_SHIFT_MASK, GDK_KEY_q,      zoom,       { .i = 0  } },
  	{ MODKEY,                GDK_KEY_minus,  zoom,       { .i = -1 } },
  	{ MODKEY,                GDK_KEY_plus,   zoom,       { .i = +1 } },
 +	{ MODKEY,                GDK_KEY_equal,  zoom,       { .i = +1 } },
- 
+
  	{ MODKEY,                GDK_KEY_p,      clipboard,  { .i = 1 } },
  	{ MODKEY,                GDK_KEY_y,      clipboard,  { .i = 0 } },

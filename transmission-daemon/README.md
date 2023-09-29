@@ -16,5 +16,5 @@ solution for the `rootlesskit` port forwarding backend for `slirp4netns` not
 preserving the source IP address.
 
 The web interface is available at `<Local ip address>:9091`. For example:
-`192.168.1.101:9091` or use `transmission-remote 192.168.1.101 -l` or 
+`192.168.1.101:9091` or use `transmission-remote 192.168.1.101 -l` or
 `alias transmission="transmission-remote 192.168.1.101"`.

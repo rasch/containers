@@ -1,7 +1,7 @@
 --- config.def.h	2023-09-20 17:35:26.513580489 -0400
 +++ config.h	2023-09-20 21:07:39.706831673 -0400
 @@ -2,12 +2,12 @@
- 
+
  /* appearance */
  static const char font[]        = "monospace:size=9";
 -static const char* normbgcolor  = "#222222";
