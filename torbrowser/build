@@ -1,0 +1,94 @@
+#!/bin/sh
+
+build=$(buildah from --pull debian:stable-slim)
+container=$(buildah from --pull debian:stable-slim)
+
+trap 'buildah rm "$build" "$container"' EXIT INT TERM
+
+buildah run "$build" -- apt update
+
+buildah run "$build" -- \
+  apt install --no-install-recommends --yes \
+    ca-certificates \
+    curl \
+    gnupg \
+    xz-utils
+
+# (naively) get latest Tor Browser version number from blog.torproject.org
+v=$(buildah run "$build" -- sh -c 'curl -s https://blog.torproject.org | \
+  grep -Eom 1 "New Release: Tor Browser ([0-9]+\.[0-9]+\.[0-9]+)" | \
+  cut -d " " -f 5')
+
+url="https://dist.torproject.org/torbrowser/$v"
+file="tor-browser-linux64-${v}_ALL.tar.xz"
+
+# download torbrowser and detached pgp signature
+buildah run "$build" -- \
+  curl --location --silent \
+    --output /tmp/"$file" "$url"/"$file" \
+    --output /tmp/"$file".asc "$url"/"$file".asc
+
+# retrieve the public pgp key for the torproject to verify signature
+buildah run "$build" -- \
+  gpg --auto-key-locate nodefault,wkd --locate-keys torbrowser@torproject.org
+
+buildah run "$build" -- \
+  gpg \
+    --output /tmp/tor.keyring \
+    --export 0xEF6E286DDA85EA2A4BA7DE684E2C6E8793298290
+
+# verify signature
+verify_cmd="gpgv --keyring /tmp/tor.keyring /tmp/$file.asc /tmp/$file"
+
+if ! buildah run -t "$build" -- sh -c "$verify_cmd"; then
+  printf "ERROR: torbrowser not installed (can't verify PGP signature)\n" >&2
+  exit 1
+fi
+
+buildah run "$build" -- \
+  tar -C /usr/local/share -xJf /tmp/"$file"
+
+buildah run "$build" -- \
+  ln -s \
+    /usr/local/share/tor-browser/Browser/start-tor-browser \
+    /usr/local/bin/torbrowser
+
+buildah run "$container" -- \
+  useradd -ms /bin/bash -G audio,video torbrowser
+
+buildah copy \
+  --from "$build" \
+  --chown torbrowser:torbrowser \
+  "$container" /usr/local /usr/local
+
+buildah run "$container" -- apt update
+
+buildah run "$container" -- \
+  apt install --no-install-recommends --yes \
+    ca-certificates \
+    file \
+    libasound2 \
+    libdbus-glib-1-2 \
+    libgl1-mesa-dri \
+    libgl1-mesa-glx \
+    libgtk-3-0 \
+    libpci3
+
+buildah run "$container" -- \
+  sh -c 'rm -rf /var/lib/apt/lists/*'
+
+buildah config \
+  --cmd '[]' \
+  --entrypoint '["torbrowser"]' \
+  --env GTK_THEME=Adwaita:dark \
+  --env TZ=UTC \
+  --user torbrowser \
+  "$container"
+
+if ! buildah run -t "$container" -- sh -c 'command -v torbrowser >/dev/null'
+then
+  printf 'ERROR: torbrowser not installed\n' >&2
+  exit 1
+fi
+
+buildah commit "$container" torbrowser

@@ -1,0 +1,8 @@
+#!/bin/sh
+
+xpod -dgX -- \
+  --cap-add SETFCAP \
+  --cap-add SYS_CHROOT \
+  --memory 8g \
+  --volume "$HOME"/Downloads:/root/Downloads \
+  torbrowser "$@"
