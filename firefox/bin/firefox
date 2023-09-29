@@ -1,0 +1,22 @@
+#!/bin/sh
+
+downloads="${MOZ_DOWNLOADS:-$HOME/Downloads}"
+
+test -d "$downloads" || mkdir -p "$downloads"
+
+if test -z "$MOZ_CLEAN"; then
+  cache_dir="${MOZ_CACHE_DIR:-$HOME/.cache/xpod/mozilla}"
+  config_dir="${MOZ_CONFIG_DIR:-$HOME/.config/xpod/mozilla}"
+
+  test -d "$cache_dir" || mkdir -p "$cache_dir"
+  test -d "$config_dir" || mkdir -p "$config_dir"
+fi
+
+xpod -dfglpGX -- \
+  --cap-add SETFCAP \
+  --cap-add SYS_CHROOT \
+  --memory 8g \
+  --volume "$downloads":/root/Downloads \
+  ${cache_dir:+--volume "$cache_dir":/root/.cache/mozilla} \
+  ${config_dir:+--volume "$config_dir":/root/.mozilla} \
+  firefox "$@"
