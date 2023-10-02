@@ -1,0 +1,22 @@
+sanitize tridactyllocal tridactylsync
+set newtab about:blank
+
+colourscheme --url https://cdn.jsdelivr.net/combine/gh/rasch/tridactyl-theme/dracula.css,gh/rasch/tridactyl-theme/drop-down.css dracula
+
+bind / fillcmdline find
+bind ? fillcmdline find -?
+bind n findnext 1
+bind N findnext -1
+bind ,<Space> nohlsearch
+
+set smoothscroll true
+bind j scrollline 5
+bind k scrollline -5
+
+auconcreatecontainer true
+autocontain -s thepiratebay\.org torrent
+autocontain -s magnetdl\.com torrent
+autocontain -s facebook\.com facebook
+autocontain -s twitter\.com twitter
+autocontain -s google\.com google
+autocontain -s youtube\.com google

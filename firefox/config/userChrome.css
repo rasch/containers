@@ -1,0 +1,17 @@
+/* monospace for the entire chrome */
+* {
+  font-family: monospace !important;
+}
+
+/* one-tone for dracula toolbar */
+:root[lwt-default-theme-in-dark-mode="true"],
+:root[style*="--lwt-accent-color: rgb(28, 27, 34)"] {
+  --toolbar-bgcolor: var(--dracula-background) !important;
+}
+
+/* hide tabbar and some buttons (use tridactyl instead) */
+#TabsToolbar,
+#back-button,
+#forward-button {
+  visibility: collapse !important;
+}
