@@ -25,6 +25,9 @@ firefox-config arkenfox
 # or your own ...
 ```
 
+If using the Dracula chrome/theme, enable it by switching to the Dark theme in
+`about:addons`.
+
 ## Configure Default Search Engine
 
 1. Visit `about:preferences#search` in the urlbar.
@@ -51,7 +54,7 @@ See the [Arkenfox extensions wiki page][4] for more details.
 - Source personal configuration file
 
 ```
-:source https://cdn.jsdelivr.net/gh/rasch/containers/firefox/config/tridactylrc
+:source --url https://cdn.jsdelivr.net/gh/rasch/containers/firefox/config/tridactylrc
 ```
 
 [5]: https://addons.mozilla.org/en-US/firefox/addon/tridactyl-vim/
@@ -93,6 +96,17 @@ This one isn't in Mozilla Addons, so it will need to be downloaded and installed
 from the file system.
 
 [10]: https://gitlab.com/magnolia1234/bpc-uploads/-/raw/master/bypass_paywalls_clean-latest.xpi
+
+## Other Details
+
+- Customize the toolbar (by right clicking and selecting "Customize Toolbar").
+- Configure [DuckDuckGo][11] to use [Dracula Theme][12].
+- Open `about:preferences#privacy` in a Firefox tab. In the "Cookies and Site
+  Data" section, click "Manage Exceptions" and add any sites that you want to
+  stay signed into.
+
+[11]: https://start.duckduckgo.com/
+[12]: https://draculatheme.com/duckduckgo
 
 ---
 
