@@ -1,0 +1,106 @@
+#!/bin/sh
+
+if test "$1" = '--help' -o "$1" = '-h' -o -z "$1"; then
+  cat <<EOF
+${0##*/} - bundle a user.js file using the jsDelivr CDN
+
+  Usage:  ${0##*/} [-h|--help]
+          ${0##*/} [name|url fragment] ...
+
+    This script works best with a new profile (see about:profiles)
+    since it doesn't do any preference cleaning (which can allow some
+    old prefs to persist). The user.js file and chrome directory are
+    backed up with a ".bak" extension before making any changes.
+
+  Arguments:
+
+    name can be one or more of the following: arkenfox, betterfox,
+    fastfox, peskyfox, securefox, smoothfox, dracula, userchrome,
+    or userjs.
+
+    if using url fragment(s) instead of names, it should be compatible
+    with the jsDelivr URLs syntax for combining multiple files, for
+    example, "gh/arkenfox/user.js/user.js" would include the Arkenfox
+    user.js file.
+
+  Examples:
+
+    ${0##*/} must be run from within a Firefox profile directory.
+
+        cd ~/.mozilla/firefox/xxxxxxxx.default/
+
+    Setup Betterfox user.js file combined with my personal overrides and
+    use Dracula Firefox chrome with my personal userChrome appended.
+
+        ${0##*/} betterfox userjs dracula userchrome
+
+    Use Arkenfox user.js with Fastfox.js and Peskyfox.js both appended.
+
+        ${0##*/} arkenfox fastfox peskyfox
+
+    Just Arkenfox with no changes.
+
+        ${0##*/} arkenfox
+
+    Just the Dracula Firefox theme with my personal userChrome appended.
+
+        ${0##*/} dracula userchrome
+
+    Use pyllyukko user.js.
+
+        ${0##*/} gh/pyllyukko/user.js/user.js
+EOF
+
+  exit
+fi
+
+if ! test -f times.json; then
+  printf 'ERROR: Current working directory must be a Firefox profile.\n'
+  exit 1
+fi
+
+if command -v curl >/dev/null; then
+  request='curl -fsSLo'
+elif command -v wget >/dev/null; then
+  request='wget -qO'
+else
+  printf 'ERROR: wget or curl command not found. Exiting.\n'
+  exit 1
+fi
+
+baseurl=https://cdn.jsdelivr.net
+
+for arg in "$@"; do
+  case "$arg" in
+    dracula)    dracula=true ;;
+    userchrome) chrome=gh/rasch/containers/firefox/config/userChrome.css ;;
+    userjs)     prefs="$prefs,gh/rasch/containers/firefox/config/user.js" ;;
+    arkenfox)   prefs="$prefs,gh/arkenfox/user.js/user.js" ;;
+    betterfox)  prefs="$prefs,gh/yokoffing/Betterfox/user.js" ;;
+    fastfox)    prefs="$prefs,gh/yokoffing/Betterfox/Fastfox.js" ;;
+    peskyfox)   prefs="$prefs,gh/yokoffing/Betterfox/Peskyfox.js" ;;
+    securefox)  prefs="$prefs,gh/yokoffing/Betterfox/Securefox.js" ;;
+    smoothfox)  prefs="$prefs,gh/yokoffing/Betterfox/Smoothfox.js" ;;
+    *)          prefs="$prefs,$arg" ;;
+  esac
+done
+
+# Firefox Dracula theme
+if test -n "$dracula"; then
+  if ! command -v git >/dev/null; then
+    printf 'ERROR: git command not found. Exiting.\n'
+    exit 1
+  fi
+
+  trap 'rm -rf firefox' EXIT INT TERM
+  git clone --depth 1 https://github.com/dracula/firefox.git
+  test -d chrome && mv chrome chrome.bak
+  mv firefox/userChrome/chrome .
+  test -n "$chrome" && $request - "$baseurl/$chrome" >> chrome/userChrome.css
+fi
+
+# Firefox user.js
+if test -n "$prefs"; then
+  test -f user.js && mv user.js user.js.bak
+  $request user.js "$baseurl/combine/${prefs#,}"
+fi

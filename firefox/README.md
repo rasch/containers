@@ -38,4 +38,7 @@ MOZ_DOWNLOADS="$HOME"/Downloads \
 firefox
 ```
 
+Also, check out the [configuration documentation](configuration.md) for a basic
+_how-to set up a profile_ guide.
+
 [firefox]: https://www.mozilla.org/en-US/firefox/new/
